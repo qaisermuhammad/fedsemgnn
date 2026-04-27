@@ -134,7 +134,7 @@ FedSemGNN/
 ├── faults/
 │   └── injector.py                 # Fault injection for robustness testing
 │
-├── experiments/                     # Experiment scripts (~42 files)
+├── experiments/                     # Core experiment execution scripts
 │   ├── run_all_algorithms.py       #   Run all 6 algorithms sequentially
 │   ├── run_multi_trial.py          #   Multi-trial experiments (5 seeds)
 │   ├── run_scalability.py          #   Scalability study (6–1K nodes)
@@ -146,8 +146,7 @@ FedSemGNN/
 │   ├── metrics_loader.py           #   Load and parse result CSVs
 │   ├── quick_sensitivity.py        #   Quick tau/lambda sensitivity sweep
 │   ├── quick_sensitivity_arch.py   #   Architecture sensitivity sweep
-│   ├── verify_convergence.py       #   Convergence verification
-│   └── ...                         #   (see experiments/ for full list)
+│   └── verify_convergence.py       #   Convergence verification
 │
 ├── tests/                           # Test suite
 │   ├── test_enhanced_fedsemgnn.py  #   Core FedSemGNN integration tests
