@@ -125,7 +125,6 @@ FedSemGNN/
 │   └── param_thinning.py           #   Parameter compression for comm efficiency
 │
 ├── semantics/                       # Semantic processing
-│   ├── novelty.py                  #   Novel service type detection
 │   └── online_embed.py             #   Online embedding model updates
 │
 ├── energy/                          # Energy modeling
