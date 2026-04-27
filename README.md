@@ -167,10 +167,7 @@ FedSemGNN/
 │   ├── dataset.json                #   Base dataset (6 servers)
 │   ├── scale_1000_nodes.json       #   1,000-node dataset
 │   ├── scale_1000_nodes_connected.json  # 1K nodes with connected topology
-│   ├── dataset_10000.json          #   10,000-node dataset
-│   ├── extreme_scale_10000.json    #   Extreme scale dataset
-│   ├── generate_dataset.py         #   Dataset generation script
-│   └── generate_extreme_scale_10000.py  # 10K dataset generator
+│   └── generate_dataset.py         #   Dataset generation script
 │
 ├── results/                         # Experiment outputs
 │   ├── multi_trial/                #   5-trial results (multi_trial_summary.csv)
@@ -532,7 +529,6 @@ FedSemGNN maintains its advantages in reward/fidelity/semantics even where its r
 | `results/multi_trial/multi_trial_summary.csv` | 5-trial verified results (primary data source) |
 | `results/scalability/scalability_results.csv` | 7-point scalability study (6 to 1,000 nodes) |
 | `results/_sens_rev1_t5/summary.csv` | Sensitivity sweep results |
-| `workloads/dataset_10000.json` | 10,000-node dataset (generated but not used in final experiments) |
 
 
 ---
