@@ -202,6 +202,14 @@ FedSemGNN/
 
 ## Quick Start
 
+### Dataset Preparation
+Before running simulations, you must download the Alibaba cluster workload dataset:
+
+1. Download the dataset components from the official repository: [Alibaba Cluster Trace v2018](https://github.com/alibaba/clusterdata/blob/master/cluster-trace-v2018/trace_2018.md)
+2. Place the downloaded trace files inside the `data/alibaba2018/` directory.
+
+### Running the Framework
+
 ```bash
 # 1. Install dependencies
 pip install -r requirements.txt
@@ -420,19 +428,19 @@ All metric CSVs include explicit `Num_Nodes` and step count columns for reproduc
 
 ### State-of-the-Art Methods
 
-#### ECO-SDIoT (Zhu et al., 2023, *Computer Networks*)
+#### ECO-SDIoT (Zhu et al., 2023)
 - **Approach:** Double DQN + SDN for edge offloading, 20 edge servers
 - **Their latency:** 20–60 ms → FedSemGNN: 0.36 ms → **55–166× faster**
 - **Their communication:** 50 MB/task → FedSemGNN: 0.65 MB → **76× less**
 - **Their energy:** ~14 mJ/task → FedSemGNN: 26 mJ/task (1.9× higher — see [Energy Trade-Off](#energy-trade-off))
 - **Lacks:** Semantic awareness, federated learning, GNN topology encoding
 
-#### GFL-LFF (Regan et al., 2024, *Computer Networks*)
+#### GFL-LFF (Regan et al., 2024)
 - **Approach:** GNN + Federated Learning + Fennec Fox Optimization for IIoT
 - **Their latency:** 1,600 ms → FedSemGNN: 0.36 ms → **4,444× faster**
 - **Note:** Energy figures (0.2 mJ/operation) are per-operation vs. system power — not directly comparable
 
-#### FRPVC (Qian et al., 2025, *Computer Networks*)
+#### FRPVC (Qian et al., 2025)
 - **Approach:** Federated DDQN + Denoised Autoencoder for video caching in energy-constrained MEC
 - **Similarity:** 8/8 technique match (federated + DRL + energy-constrained + privacy)
 - **FedSemGNN advantages:** General task placement (vs. video-only), PPO (vs. DDQN), semantic embeddings, GNN topology, hierarchical structure
