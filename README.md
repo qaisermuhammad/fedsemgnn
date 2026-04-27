@@ -116,9 +116,7 @@ FedSemGNN/
 │   └── power_model/                 # 6G edge power models
 │       └── edge_6g_power.py        #   DVFS-based power estimation
 │
-├── sim_layers/
-│   └── hardware_layer.py           # EdgeSimPy hardware abstraction layer
-│
+
 ├── fed/                             # Federated learning utilities
 │   ├── async_clock.py              #   Asynchronous synchronization clock
 │   └── param_thinning.py           #   Parameter compression for comm efficiency
