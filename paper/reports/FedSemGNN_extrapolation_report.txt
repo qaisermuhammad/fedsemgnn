@@ -1,8 +1,0 @@
-SYNTHETIC SCALING AND EXTRAPOLATION REPORT
-==================================================
-
-Base Simulation: 0 users, 0 EdgeServers
-Extrapolation Target: Up to 10,000+ users
-
-METHODOLOGY:
-- Mathematical curve fitting using multiple models (linear, logarithmic, power law)

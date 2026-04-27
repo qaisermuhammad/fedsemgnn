@@ -63,8 +63,9 @@ Thumbs.db
 *.fdb_latexmk
 *.fls
 
-# Archive (old backups)
+# Archive and Paper materials (keep local, do not upload)
 archive/
+paper/
 
 # Gemini/Antigravity
 .gemini/

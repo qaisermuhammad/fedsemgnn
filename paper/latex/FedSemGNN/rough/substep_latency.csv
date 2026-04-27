@@ -1,8 +1,0 @@
-% TODO: \usepackage{graphicx} required
-\begin{figure}
-\centering
-\includegraphics[width=0.7\linewidth]{substep_latency}
-\caption{}
-\label{fig:substeplatency}
-\end{figure}
-Step,GCN_ms,Fidelity,Reward
