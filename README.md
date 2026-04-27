@@ -196,14 +196,6 @@ FedSemGNN/
 
 ## Quick Start
 
-### Dataset Preparation
-Before running simulations, you must download the Alibaba cluster workload dataset:
-
-1. Download the dataset components from the official repository: [Alibaba Cluster Trace v2018](https://github.com/alibaba/clusterdata/blob/master/cluster-trace-v2018/trace_2018.md)
-2. Place the downloaded trace files inside the `data/alibaba2018/` directory.
-
-### Running the Framework
-
 ```bash
 # 1. Install dependencies
 pip install -r requirements.txt
