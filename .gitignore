@@ -54,6 +54,21 @@ Thumbs.db
 # Jupyter
 .ipynb_checkpoints/
 
+# LaTeX build artifacts
+*.aux
+*.bbl
+*.blg
+*.out
+*.synctex.gz
+*.fdb_latexmk
+*.fls
+
+# Archive (old backups)
+archive/
+
+# Gemini/Antigravity
+.gemini/
+
 # Specific to this project
 graphs/*.png
 graphs/*.pdf
