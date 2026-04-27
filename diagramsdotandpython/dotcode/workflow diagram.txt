@@ -1,0 +1,46 @@
+digraph FedSemGNN_Workflow {
+  rankdir=TB; dpi=600; splines=true; bgcolor="white";
+  fontname="Helvetica"; fontsize=11;
+  graph [pad=0.30, nodesep=0.38, ranksep=0.55];
+  node  [fontname="Helvetica", fontsize=10, style="rounded,filled", color="#222", penwidth=1.2, fillcolor="#F8F8F8", shape=box];
+  edge  [color="#222", arrowsize=0.85, penwidth=1.05];
+
+  // ===== Workflow steps =====
+  s0  [label="(0) Service Arrival\n(Task Request)", fillcolor="#FFF7D6"];
+  s1  [label="(1) Semantic Encoding\n(Task → Embedding)", fillcolor="#F6E3B3"];
+  s2  [label="(2) GNN Encoding\n(Local + Neighborhood)", shape=parallelogram, fillcolor="#CFE5FF"];
+  s3  [label="(3) Cluster & Edge Selection", fillcolor="#E7F8EF"];
+  s4  [label="(4) Service Placement / Execution", fillcolor="#EAF7FF"];
+  s5  [label="(5) Reward Computation\n(latency, power, fidelity, cost)"];
+  s6  [label="(6) Local PPO Update", shape=hexagon, fillcolor="#E7C3E9"];
+
+  // Sync decision
+  s7  [label="Sync Trigger?\n(step % K_intra = 0)", shape=diamond, fillcolor="#FFE6E6"];
+
+  // Federation path
+  s8  [label="(7a) Intra-cluster Sync", fillcolor="#E9EEF9"];
+  s9  [label="(7b) Global DP Aggregation", fillcolor="#F8C8D1"];
+  s10 [label="(8) Broadcast Updated Policy", shape=parallelogram, fillcolor="#F6D6C0"];
+
+  next [label="(9) Next Step", fillcolor="#EFEFEF"];
+
+  // Main linear flow
+  s0 -> s1 -> s2 -> s3 -> s4 -> s5 -> s6 -> s7;
+  s7 -> s8 [label="Yes"];
+  s7 -> next [label="No"];
+
+  s8 -> s9 -> s10 -> next;
+
+  // ===== Feedback paths (key update) =====
+  // 1) Global policy broadcast goes to Local PPO (solid purple)
+  s10 -> s6  [color="#7C3AED", penwidth=1.3, label="Global Policy Broadcast", fontcolor="#7C3AED"];
+
+  // 2) Semantic adaptation feedback goes to Semantic Encoder (dotted purple)
+  s10 -> s1  [color="#7C3AED", style=dotted, penwidth=1.2, label="Semantic Adaptation Feedback", fontcolor="#7C3AED"];
+
+  // Optional layout anchors to keep figure spacious and uncropped
+  padt [label="", shape=point, width=0.01, style=invis];
+  padb [label="", shape=point, width=0.01, style=invis];
+  padt -> s0 [style=invis];
+  next -> padb [style=invis];
+}

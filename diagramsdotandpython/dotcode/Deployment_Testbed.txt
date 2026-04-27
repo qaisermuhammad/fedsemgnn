@@ -1,0 +1,31 @@
+digraph Deployment_Testbed {
+  rankdir=LR;
+dpi=600;
+  node [fontname="Helvetica", fontsize=10];
+
+  subgraph cluster_edge {
+    label="Edge Rack";
+    style=dashed;
+    color=blue;
+    Server1 [label="Edge Server 1", shape=box, style=filled, fillcolor=lightblue];
+    Server2 [label="Edge Server 2", shape=box, style=filled, fillcolor=lightblue];
+    Server3 [label="Edge Server 3", shape=box, style=filled, fillcolor=lightblue];
+    Server4 [label="Edge Server 4", shape=box, style=filled, fillcolor=lightblue];
+  }
+
+  subgraph cluster_cloud {
+    label="Cloud Rack";
+    style=dashed;
+    color=darkgreen;
+    Cloud1 [label="Cloud Node 1", shape=box, style=filled, fillcolor=lightgreen];
+    Cloud2 [label="Cloud Node 2", shape=box, style=filled, fillcolor=lightgreen];
+    Cloud3 [label="Cloud Node 3", shape=box, style=filled, fillcolor=lightgreen];
+    Cloud4 [label="Cloud Node 4", shape=box, style=filled, fillcolor=lightgreen];
+  }
+
+  // Inter-rack links
+  Server1 -> Cloud1 [label="10 Gbps"];
+  Server2 -> Cloud2 [label="10 Gbps"];
+  Server3 -> Cloud3 [label="10 Gbps"];
+  Server4 -> Cloud4 [label="10 Gbps"];
+}

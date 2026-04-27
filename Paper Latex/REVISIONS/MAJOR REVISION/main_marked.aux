@@ -1,0 +1,232 @@
+\relax 
+\providecommand\hyper@newdestlabel[2]{}
+\providecommand\HyField@AuxAddToFields[1]{}
+\providecommand\HyField@AuxAddToCoFields[2]{}
+\citation{cui2025}
+\citation{shi2023}
+\citation{vahabi2025}
+\citation{yang2023rlcs}
+\citation{shi2023}
+\citation{zhang2025semantic}
+\citation{wu2024topology}
+\citation{ogenyi2025comprehensive,zhang2024optimizing}
+\citation{zhang2025semantic}
+\citation{wu2024topology}
+\citation{makris2024gnnrl,zhang2024optimizing}
+\citation{sad2024fearless,he2022acefl}
+\citation{wu2024topology,vahabi2025}
+\@writefile{toc}{\contentsline {section}{\numberline {I}Introduction}{1}{section.1}\protected@file@percent }
+\citation{yang2023rlcs,shi2023}
+\citation{souza2023edgesimpy}
+\citation{kianpisheh2024,huang2022collaborative}
+\citation{wang2021,consul2024hybrid}
+\citation{he2022acefl}
+\citation{lu2020low,prathiba2022}
+\citation{yan2023v2v,sad2024fearless}
+\@writefile{toc}{\contentsline {section}{\numberline {II}Related Work}{2}{section.2}\protected@file@percent }
+\newlabel{sec:related}{{II}{2}{Related Work}{section.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {II-A}}Federated Reinforcement Learning for Edge Orchestration}{2}{subsection.2.1}\protected@file@percent }
+\citation{prathiba2022,tam2025graph}
+\citation{wang2021}
+\citation{zhang2025semantic,li2021network}
+\citation{zhang2024optimizing,jere2023distributed}
+\citation{makris2024gnnrl,hao2021urllc}
+\citation{tan2023selfadaptive,huang2022workercentric}
+\citation{tam2025graph}
+\citation{zhu2023eco}
+\citation{regan2024gfl}
+\citation{qian2025frpvc}
+\citation{haarnoja2018sac}
+\citation{fujimoto2018td3}
+\citation{yu2021mappo}
+\citation{chen2025anns}
+\citation{souza2023edgesimpy}
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {II-B}}Semantic-Aware Scheduling and Service Placement}{3}{subsection.2.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {II-C}}GNN-Based Topology Encoding for Edge Intelligence}{3}{subsection.2.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {II-D}}Hierarchical Federated Learning for Communication Efficiency}{3}{subsection.2.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {II-E}}Deep RL-Based Edge Offloading and Resource Allocation}{3}{subsection.2.5}\protected@file@percent }
+\citation{yan2023v2v,prathiba2022,li2021network}
+\citation{makris2024gnnrl,tam2025graph}
+\citation{sad2024fearless,kianpisheh2024,yan2023v2v}
+\citation{yan2023v2v,prathiba2022}
+\citation{li2021network,jere2023distributed}
+\citation{makris2024gnnrl,tam2025graph}
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {II-F}}Positioning of Our Work}{4}{subsection.2.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {III}System Architecture}{4}{section.3}\protected@file@percent }
+\newlabel{sec:system_architecture}{{III}{4}{System Architecture}{section.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {III-A}}Semantic-Aware Task Representation}{4}{subsection.3.1}\protected@file@percent }
+\newlabel{subsec:semantic_representation}{{\mbox  {III-A}}{4}{Semantic-Aware Task Representation}{subsection.3.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {III-B}}Topology Encoding with Graph Neural Networks}{4}{subsection.3.2}\protected@file@percent }
+\newlabel{subsec:topology_encoding}{{\mbox  {III-B}}{4}{Topology Encoding with Graph Neural Networks}{subsection.3.2}{}}
+\citation{makris2024gnnrl,huang2022collaborative}
+\citation{sad2024fearless,yan2023v2v}
+\citation{mao2024optimizing,li2021network}
+\citation{singh2024drl,kianpisheh2024}
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Complete FedSemGNN system architecture showing hierarchical federated learning with semantic embeddings, GNN topology encoding, and two-level synchronization. User devices with semantic encoder feed multiple edge clusters (Cluster 1, Cluster 2), each containing resource monitors, edge nodes, GCN encoders, and local PPO agents. Intra-cluster sync occurs every $K_1=10$ epochs, while global DP aggregation and policy distribution occur every $K_2=50$ epochs.}}{5}{figure.caption.1}\protected@file@percent }
+\providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
+\newlabel{fig:system_framework}{{1}{5}{Complete FedSemGNN system architecture showing hierarchical federated learning with semantic embeddings, GNN topology encoding, and two-level synchronization. User devices with semantic encoder feed multiple edge clusters (Cluster 1, Cluster 2), each containing resource monitors, edge nodes, GCN encoders, and local PPO agents. Intra-cluster sync occurs every $K_1=10$ epochs, while global DP aggregation and policy distribution occur every $K_2=50$ epochs}{figure.caption.1}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Semantic embedding pipeline showing the flow from service requests through the custom continual learning encoder ($128 \rightarrow 64 \rightarrow 64 \rightarrow 16$), GNN encoding, projection head, semantic vector generation, similarity-based matching, and final placement decision. The feedback loop (purple dotted line) enables continuous semantic adaptation based on orchestration performance.}}{5}{figure.caption.2}\protected@file@percent }
+\newlabel{fig:semantic_pipeline}{{2}{5}{Semantic embedding pipeline showing the flow from service requests through the custom continual learning encoder ($128 \rightarrow 64 \rightarrow 64 \rightarrow 16$), GNN encoding, projection head, semantic vector generation, similarity-based matching, and final placement decision. The feedback loop (purple dotted line) enables continuous semantic adaptation based on orchestration performance}{figure.caption.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {III-C}}Hierarchical Federated Proximal Policy Optimization}{5}{subsection.3.3}\protected@file@percent }
+\newlabel{subsec:hierarchical_ppo}{{\mbox  {III-C}}{5}{Hierarchical Federated Proximal Policy Optimization}{subsection.3.3}{}}
+\citation{souza2023edgesimpy}
+\citation{regan2024gfl,zhu2023eco}
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {III-D}}Workflow Summary}{6}{subsection.3.4}\protected@file@percent }
+\newlabel{subsec:workflow}{{\mbox  {III-D}}{6}{Workflow Summary}{subsection.3.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {III-E}}Design Rationale and System Characteristics}{6}{subsection.3.5}\protected@file@percent }
+\newlabel{subsec:design_rationale}{{\mbox  {III-E}}{6}{Design Rationale and System Characteristics}{subsection.3.5}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Complete FedSemGNN orchestration workflow showing the decision cycle: (0) Service Arrival $\rightarrow $ (1) Semantic Encoding $\rightarrow $ (2) GNN Encoding $\rightarrow $ (3) Cluster Selection $\rightarrow $ (4) Placement $\rightarrow $ (5) Reward Computation $\rightarrow $ (6) Local PPO Update $\rightarrow $ (7) Sync Decision $\rightarrow $ (7a-7b) Hierarchical Aggregation $\rightarrow $ (8) Policy Broadcast. Purple lines show critical feedback: solid for global policy broadcast to local agents, dotted for semantic adaptation feedback to encoder.}}{6}{figure.caption.3}\protected@file@percent }
+\newlabel{fig:workflow}{{3}{6}{Complete FedSemGNN orchestration workflow showing the decision cycle: (0) Service Arrival $\rightarrow $ (1) Semantic Encoding $\rightarrow $ (2) GNN Encoding $\rightarrow $ (3) Cluster Selection $\rightarrow $ (4) Placement $\rightarrow $ (5) Reward Computation $\rightarrow $ (6) Local PPO Update $\rightarrow $ (7) Sync Decision $\rightarrow $ (7a-7b) Hierarchical Aggregation $\rightarrow $ (8) Policy Broadcast. Purple lines show critical feedback: solid for global policy broadcast to local agents, dotted for semantic adaptation feedback to encoder}{figure.caption.3}{}}
+\citation{zhou2024qos,yurdem2024federated,zhou2024robustfl}
+\citation{grasso2022hhome}
+\citation{wang2024deepgrl}
+\citation{moreira2024vne}
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {III-F}}Compatibility with Existing 6G Edge Platforms}{7}{subsection.3.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {IV}Proposed Methodology}{7}{section.4}\protected@file@percent }
+\newlabel{sec:methodology}{{IV}{7}{Proposed Methodology}{section.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IV-A}}System Model}{7}{subsection.4.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IV-B}}Semantic Embedding}{7}{subsection.4.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {\mbox  {IV-B}1}Semantic similarity threshold and adaptation}{7}{subsubsection.4.2.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {\mbox  {IV-B}2}Continual learning regularization ($\lambda _{\mathrm  {EWC}}$)}{7}{subsubsection.4.2.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IV-C}}Topology Encoding with Graph Convolutional Networks}{7}{subsection.4.3}\protected@file@percent }
+\citation{robles2023multilayer}
+\citation{zhou2024robustfl,yurdem2024federated}
+\citation{ji2024resource}
+\citation{grasso2022hhome,zhou2024qos}
+\citation{zhou2024robustfl}
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IV-D}}Hierarchical Federated Proximal Policy Optimization}{8}{subsection.4.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IV-E}}Reward Function}{8}{subsection.4.5}\protected@file@percent }
+\newlabel{eq:base_reward}{{9}{8}{Reward Function}{equation.9}{}}
+\newlabel{eq:smoothed_reward}{{10}{8}{Reward Function}{equation.10}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IV-F}}Training and Synchronization Protocol}{8}{subsection.4.6}\protected@file@percent }
+\citation{souza2023edgesimpy}
+\@writefile{loa}{\contentsline {algorithm}{\numberline {1}{\ignorespaces FedSemGNN Training Protocol}}{9}{algorithm.1}\protected@file@percent }
+\newlabel{alg:fedsemgnn_training}{{1}{9}{FedSemGNN Training Protocol}{algorithm.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IV-G}}Implementation Details}{9}{subsection.4.7}\protected@file@percent }
+\@writefile{loa}{\contentsline {algorithm}{\numberline {2}{\ignorespaces FedSemGNN Orchestration (Inference)}}{9}{algorithm.2}\protected@file@percent }
+\newlabel{alg:orchestration_inference}{{2}{9}{FedSemGNN Orchestration (Inference)}{algorithm.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IV-H}}Scalability Evaluation Methodology}{9}{subsection.4.8}\protected@file@percent }
+\citation{souza2023edgesimpy}
+\citation{zhu2023eco}
+\citation{regan2024gfl}
+\citation{qian2025frpvc}
+\@writefile{lot}{\contentsline {table}{\numberline {I}{\ignorespaces FedSemGNN Hyperparameters Configuration}}{10}{table.caption.4}\protected@file@percent }
+\newlabel{tab:hyperparameters}{{I}{10}{FedSemGNN Hyperparameters Configuration}{table.caption.4}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {V}Evaluation and Results}{10}{section.5}\protected@file@percent }
+\newlabel{sec:evaluation}{{V}{10}{Evaluation and Results}{section.5}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {V-A}}Experimental Setup}{10}{subsection.5.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {V-B}}Baseline Algorithms}{10}{subsection.5.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {V-C}}Evaluation Metrics}{10}{subsection.5.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {V-D}}Comparison with State-of-the-Art Published Methods}{10}{subsection.5.4}\protected@file@percent }
+\newlabel{subsec:sota_comparison}{{\mbox  {V-D}}{10}{Comparison with State-of-the-Art Published Methods}{subsection.5.4}{}}
+\citation{zhu2023eco}
+\citation{regan2024gfl}
+\citation{qian2025frpvc}
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {V-E}}Comparative Performance Analysis}{11}{subsection.5.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {V-F}}Priority-Aware Scheduling Study}{11}{subsection.5.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {V-G}}Parameter Sensitivity}{11}{subsection.5.7}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {\mbox  {V-G}1}Individual Performance Metrics}{11}{subsubsection.5.7.1}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {II}{\ignorespaces Comparison with State-of-the-Art Deep Reinforcement Learning Methods for Edge Computing (2023--2025)}}{12}{table.caption.5}\protected@file@percent }
+\newlabel{tab:sota_comparison}{{II}{12}{Comparison with State-of-the-Art Deep Reinforcement Learning Methods for Edge Computing (2023--2025)}{table.caption.5}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {III}{\ignorespaces Comprehensive Performance Comparison of FedSemGNN and Baseline Algorithms (1{,}000 steps, 6 edge nodes, mean$\pm $std over 5 independent trials)}}{12}{table.caption.6}\protected@file@percent }
+\newlabel{tab:performance_comparison}{{III}{12}{Comprehensive Performance Comparison of FedSemGNN and Baseline Algorithms (1{,}000 steps, 6 edge nodes, mean$\pm $std over 5 independent trials)}{table.caption.6}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {IV}{\ignorespaces Priority-aware diagnostics (50 steps, injected 20\% emergency tasks).}}{12}{table.caption.7}\protected@file@percent }
+\newlabel{tab:priority_study}{{IV}{12}{Priority-aware diagnostics (50 steps, injected 20\% emergency tasks)}{table.caption.7}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {V}{\ignorespaces Parameter sensitivity: semantic threshold $\tau $ and EWC regularization $\lambda _{\mathrm  {EWC}}$ (50 steps, 100 nodes; mean$\pm $std).}}{12}{table.caption.8}\protected@file@percent }
+\newlabel{tab:param_sensitivity}{{V}{12}{Parameter sensitivity: semantic threshold $\tau $ and EWC regularization $\lambda _{\mathrm {EWC}}$ (50 steps, 100 nodes; mean$\pm $std)}{table.caption.8}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {VI}{\ignorespaces Sensitivity to architectural parameters: semantic dimension~$d$, intra-cluster sync interval~$K_1$, and replay-buffer capacity~$B$ (50 steps, 100 nodes; mean$\pm $std).}}{12}{table.caption.9}\protected@file@percent }
+\newlabel{tab:param_sensitivity_r2}{{VI}{12}{Sensitivity to architectural parameters: semantic dimension~$d$, intra-cluster sync interval~$K_1$, and replay-buffer capacity~$B$ (50 steps, 100 nodes; mean$\pm $std)}{table.caption.9}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Comprehensive radar chart comparing FedSemGNN against all baselines across normalized performance dimensions, demonstrating balanced excellence.}}{13}{figure.caption.10}\protected@file@percent }
+\newlabel{fig:overall_radar}{{4}{13}{Comprehensive radar chart comparing FedSemGNN against all baselines across normalized performance dimensions, demonstrating balanced excellence}{figure.caption.10}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Aggregate normalized reward comparison. FedSemGNN balances competitive reward with best latency, fidelity, and communication efficiency.}}{13}{figure.caption.11}\protected@file@percent }
+\newlabel{fig:reward_comparison}{{5}{13}{Aggregate normalized reward comparison. FedSemGNN balances competitive reward with best latency, fidelity, and communication efficiency}{figure.caption.11}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces Orchestration latency comparison (representative trial). FedSemGNN achieves lowest latency; 5-trial mean is 39.08~ms versus baselines requiring 82--135~ms (Table~\ref {tab:performance_comparison}).}}{13}{figure.caption.12}\protected@file@percent }
+\newlabel{fig:latency_comparison}{{6}{13}{Orchestration latency comparison (representative trial). FedSemGNN achieves lowest latency; 5-trial mean is 39.08~ms versus baselines requiring 82--135~ms (Table~\ref {tab:performance_comparison})}{figure.caption.12}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces Semantic fidelity comparison (representative trial). FedSemGNN maintains $\sim $100\% fidelity versus FlatFedPPO (71.9\%) and CentralizedPPO (72.5\%) in 5-trial means.}}{13}{figure.caption.13}\protected@file@percent }
+\newlabel{fig:fidelity_comparison}{{7}{13}{Semantic fidelity comparison (representative trial). FedSemGNN maintains $\sim $100\% fidelity versus FlatFedPPO (71.9\%) and CentralizedPPO (72.5\%) in 5-trial means}{figure.caption.13}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces Power consumption comparison (representative trial). HSQF (840~W) and HierFedPPO (1{,}066~W) achieve lowest absolute power; see Table~\ref {tab:performance_comparison} for 5-trial means.}}{13}{figure.caption.14}\protected@file@percent }
+\newlabel{fig:power_comparison}{{8}{13}{Power consumption comparison (representative trial). HSQF (840~W) and HierFedPPO (1{,}066~W) achieve lowest absolute power; see Table~\ref {tab:performance_comparison} for 5-trial means}{figure.caption.14}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {\mbox  {V-G}2}Migration Stability and Mobility Robustness}{13}{subsubsection.5.7.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {9}{\ignorespaces Service migration timeline showing migration dynamics across all algorithms. HierFedPPO achieves fewest migrations through cluster caching, while FedSemGNN balances moderate migrations with minimal communication overhead (0.72~MB). Numerical values are 5-trial means from Table~\ref {tab:performance_comparison}.}}{14}{figure.caption.15}\protected@file@percent }
+\newlabel{fig:migration_analysis}{{9}{14}{Service migration timeline showing migration dynamics across all algorithms. HierFedPPO achieves fewest migrations through cluster caching, while FedSemGNN balances moderate migrations with minimal communication overhead (0.72~MB). Numerical values are 5-trial means from Table~\ref {tab:performance_comparison}}{figure.caption.15}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {\mbox  {V-G}3}Computational and Communication Efficiency}{14}{subsubsection.5.7.3}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {VII}{\ignorespaces FedSemGNN scalability measurements (dynamically generated topologies; $\dagger $ = timing benchmark only; $\ddagger $ = 5-trial mean from Table~\ref {tab:performance_comparison}).}}{14}{table.caption.22}\protected@file@percent }
+\newlabel{tab:scalability_data}{{VII}{14}{FedSemGNN scalability measurements (dynamically generated topologies; $\dagger $ = timing benchmark only; $\ddagger $ = 5-trial mean from Table~\ref {tab:performance_comparison})}{table.caption.22}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {V-H}}Temporal and Scalability Analysis}{14}{subsection.5.8}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {V-I}}Semantic Embedding Quality}{14}{subsection.5.9}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {10}{\ignorespaces User mobility and service handover scenario showing movement from Cluster A to Cluster B. Global policy distribution maintains coordination, while semantic feedback enables mobility-aware embedding refinement.}}{15}{figure.caption.16}\protected@file@percent }
+\newlabel{fig:mobility_handover}{{10}{15}{User mobility and service handover scenario showing movement from Cluster A to Cluster B. Global policy distribution maintains coordination, while semantic feedback enables mobility-aware embedding refinement}{figure.caption.16}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {11}{\ignorespaces Mobility impact analysis showing FedSemGNN's consistent performance across mobility speeds (0.5--5 m/s), maintaining perfect fidelity while baselines degrade.}}{15}{figure.caption.17}\protected@file@percent }
+\newlabel{fig:mobility_impact}{{11}{15}{Mobility impact analysis showing FedSemGNN's consistent performance across mobility speeds (0.5--5 m/s), maintaining perfect fidelity while baselines degrade}{figure.caption.17}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {12}{\ignorespaces Communication efficiency (reward per MB exchanged). Negative values arise from multi-objective reward penalties; see Table~\ref {tab:performance_comparison} for absolute metrics. RandomPlacement omitted as extreme outlier.}}{15}{figure.caption.18}\protected@file@percent }
+\newlabel{fig:algorithm_efficiency}{{12}{15}{Communication efficiency (reward per MB exchanged). Negative values arise from multi-objective reward penalties; see Table~\ref {tab:performance_comparison} for absolute metrics. RandomPlacement omitted as extreme outlier}{figure.caption.18}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {V-J}}Performance Stability and Statistical Validation}{15}{subsection.5.10}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {13}{\ignorespaces Communication overhead comparison showing FedSemGNN's minimal 0.72~MB total versus 2.93--207.65~MB for baselines, with $21\times $ lower overhead than FlatFedPPO.}}{15}{figure.caption.19}\protected@file@percent }
+\newlabel{fig:communication_overhead}{{13}{15}{Communication overhead comparison showing FedSemGNN's minimal 0.72~MB total versus 2.93--207.65~MB for baselines, with $21\times $ lower overhead than FlatFedPPO}{figure.caption.19}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {14}{\ignorespaces Temporal analysis showing FedSemGNN's convergence and sustained stability across reward, latency, power, and fidelity metrics (representative trial).}}{15}{figure.caption.20}\protected@file@percent }
+\newlabel{fig:temporal_analysis}{{14}{15}{Temporal analysis showing FedSemGNN's convergence and sustained stability across reward, latency, power, and fidelity metrics (representative trial)}{figure.caption.20}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {15}{\ignorespaces Scalability validation across 7 scale points (6--1{,}000 nodes), showing ${\sim }$100\% semantic fidelity preservation, stable ${\sim }$30--31~ms latency, and near-linear computation time growth.}}{16}{figure.caption.21}\protected@file@percent }
+\newlabel{fig:scalability_analysis}{{15}{16}{Scalability validation across 7 scale points (6--1{,}000 nodes), showing ${\sim }$100\% semantic fidelity preservation, stable ${\sim }$30--31~ms latency, and near-linear computation time growth}{figure.caption.21}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {16}{\ignorespaces t-SNE visualization showing semantic clustering by service type with server profiles aligned to task clusters, validating embedding quality.}}{16}{figure.caption.23}\protected@file@percent }
+\newlabel{fig:tsne_semantic_clusters}{{16}{16}{t-SNE visualization showing semantic clustering by service type with server profiles aligned to task clusters, validating embedding quality}{figure.caption.23}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {17}{\ignorespaces Performance stability comparison using coefficient of variation, showing FedSemGNN's low variance in latency and fidelity.}}{16}{figure.caption.24}\protected@file@percent }
+\newlabel{fig:performance_stability}{{17}{16}{Performance stability comparison using coefficient of variation, showing FedSemGNN's low variance in latency and fidelity}{figure.caption.24}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {18}{\ignorespaces Multi-trial statistical validation (5 independent trials). Box plots with individual trial points; Mann-Whitney~U significance vs FedSemGNN: latency differences significant at $p < 0.01$ for all baselines.}}{16}{figure.caption.25}\protected@file@percent }
+\newlabel{fig:statistical_significance}{{18}{16}{Multi-trial statistical validation (5 independent trials). Box plots with individual trial points; Mann-Whitney~U significance vs FedSemGNN: latency differences significant at $p < 0.01$ for all baselines}{figure.caption.25}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {V-K}}Federated Learning Dynamics}{16}{subsection.5.11}\protected@file@percent }
+\citation{souza2023edgesimpy}
+\@writefile{lof}{\contentsline {figure}{\numberline {19}{\ignorespaces Reward convergence comparison (50-step moving average). FedSemGNN achieves stable operational latency and fidelity from the first timestep, with lowest reward variance among RL-based algorithms.}}{17}{figure.caption.26}\protected@file@percent }
+\newlabel{fig:convergence_speed}{{19}{17}{Reward convergence comparison (50-step moving average). FedSemGNN achieves stable operational latency and fidelity from the first timestep, with lowest reward variance among RL-based algorithms}{figure.caption.26}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {20}{\ignorespaces Hierarchical federated learning dynamics showing local gradient evolution, global synchronization events at $K_2=50$ intervals, and client participation rates.}}{17}{figure.caption.27}\protected@file@percent }
+\newlabel{fig:federated_dynamics}{{20}{17}{Hierarchical federated learning dynamics showing local gradient evolution, global synchronization events at $K_2=50$ intervals, and client participation rates}{figure.caption.27}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {V-L}}Summary of Key Findings}{17}{subsection.5.12}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {VI}Conclusion}{17}{section.6}\protected@file@percent }
+\newlabel{sec:conclusion}{{VI}{17}{Conclusion}{section.6}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {VII}Limitations and Future Work}{17}{section.7}\protected@file@percent }
+\newlabel{sec:limitations_future}{{VII}{17}{Limitations and Future Work}{section.7}{}}
+\bibstyle{IEEEtran}
+\bibdata{new_references}
+\bibcite{cui2025}{1}
+\bibcite{shi2023}{2}
+\bibcite{vahabi2025}{3}
+\bibcite{yang2023rlcs}{4}
+\bibcite{zhang2025semantic}{5}
+\bibcite{wu2024topology}{6}
+\bibcite{ogenyi2025comprehensive}{7}
+\bibcite{zhang2024optimizing}{8}
+\bibcite{makris2024gnnrl}{9}
+\bibcite{sad2024fearless}{10}
+\bibcite{he2022acefl}{11}
+\bibcite{souza2023edgesimpy}{12}
+\bibcite{kianpisheh2024}{13}
+\bibcite{huang2022collaborative}{14}
+\bibcite{wang2021}{15}
+\bibcite{consul2024hybrid}{16}
+\bibcite{lu2020low}{17}
+\bibcite{prathiba2022}{18}
+\bibcite{yan2023v2v}{19}
+\bibcite{tam2025graph}{20}
+\bibcite{li2021network}{21}
+\@writefile{toc}{\contentsline {section}{References}{18}{section*.31}\protected@file@percent }
+\bibcite{jere2023distributed}{22}
+\bibcite{hao2021urllc}{23}
+\bibcite{tan2023selfadaptive}{24}
+\bibcite{huang2022workercentric}{25}
+\bibcite{zhu2023eco}{26}
+\bibcite{regan2024gfl}{27}
+\bibcite{qian2025frpvc}{28}
+\bibcite{haarnoja2018sac}{29}
+\bibcite{fujimoto2018td3}{30}
+\bibcite{yu2021mappo}{31}
+\bibcite{chen2025anns}{32}
+\bibcite{mao2024optimizing}{33}
+\bibcite{singh2024drl}{34}
+\bibcite{zhou2024qos}{35}
+\bibcite{yurdem2024federated}{36}
+\bibcite{zhou2024robustfl}{37}
+\bibcite{grasso2022hhome}{38}
+\bibcite{wang2024deepgrl}{39}
+\bibcite{moreira2024vne}{40}
+\bibcite{robles2023multilayer}{41}
+\bibcite{ji2024resource}{42}
+\gdef \@abspage@last{19}

@@ -1,0 +1,6 @@
+Algorithm,communication_overhead,latency,model_fidelity,power_consumption,reward
+FedSemGNN,44.96,5.03,99.94,920.08,0.85
+FlatFedPPO,1372.15,421.94,66.61,40106.15,1.02
+HSQF,11.48,540.61,33.27,10735.5,-0.16
+HierFedPPO,9463.66,540.61,99.94,13598.58,-2.1
+RandomPlacement,0.12,540.61,99.94,37639.11,0.5

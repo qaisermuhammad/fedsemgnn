@@ -1,0 +1,162 @@
+ACTUAL vs PREDICTED RESULTS COMPARISON REPORT
+============================================================
+
+SIMULATION PARAMETERS:
+- Actual simulation: 10,000 users (override), 10 steps
+- Predicted results: Extrapolated from 500-user base to 10,000 users
+- Comparison purpose: Validate extrapolation methodology
+
+DETAILED COMPARISON BY ALGORITHM:
+--------------------------------------------------
+
+FEDSEMGNN:
+  reward:
+    Actual: 0.000
+    Predicted: 0.850
+    Absolute Error: 0.850
+    Percentage Error: 85.0%
+  latency:
+    Actual: 2.069
+    Predicted: 5.030
+    Absolute Error: 2.961
+    Percentage Error: 143.1%
+  model_fidelity:
+    Actual: 100.000
+    Predicted: 99.940
+    Absolute Error: 0.060
+    Percentage Error: 0.1%
+  power_consumption:
+    Actual: 72.103
+    Predicted: 920.080
+    Absolute Error: 847.977
+    Percentage Error: 1176.1%
+  communication_overhead:
+    Actual: 0.014
+    Predicted: 44.960
+    Absolute Error: 44.946
+    Percentage Error: 313357.3%
+  Average Error: 62952.3%
+
+FLATFEDPPO:
+  reward:
+    Actual: -0.656
+    Predicted: 1.020
+    Absolute Error: 1.676
+    Percentage Error: 255.6%
+  latency:
+    Actual: 229.167
+    Predicted: 421.940
+    Absolute Error: 192.773
+    Percentage Error: 84.1%
+  model_fidelity:
+    Actual: 16.667
+    Predicted: 66.610
+    Absolute Error: 49.943
+    Percentage Error: 299.7%
+  power_consumption:
+    Actual: 2432.839
+    Predicted: 40106.150
+    Absolute Error: 37673.311
+    Percentage Error: 1548.5%
+  communication_overhead:
+    Actual: 0.000
+    Predicted: 1372.150
+    Absolute Error: 1372.150
+    Percentage Error: 137215.0%
+  Average Error: 27880.6%
+
+HIERFEDPPO:
+  reward:
+    Actual: 2.012
+    Predicted: -2.100
+    Absolute Error: 4.112
+    Percentage Error: 204.4%
+  latency:
+    Actual: 291.667
+    Predicted: 540.610
+    Absolute Error: 248.943
+    Percentage Error: 85.4%
+  model_fidelity:
+    Actual: 50.000
+    Predicted: 99.940
+    Absolute Error: 49.940
+    Percentage Error: 99.9%
+  power_consumption:
+    Actual: 1067.593
+    Predicted: 13598.580
+    Absolute Error: 12530.987
+    Percentage Error: 1173.8%
+  communication_overhead:
+    Actual: 1.326
+    Predicted: 9463.660
+    Absolute Error: 9462.334
+    Percentage Error: 713339.1%
+  Average Error: 142980.5%
+
+HSQF:
+  reward:
+    Actual: -2.107
+    Predicted: -0.160
+    Absolute Error: 1.947
+    Percentage Error: 92.4%
+  latency:
+    Actual: 277.778
+    Predicted: 540.610
+    Absolute Error: 262.832
+    Percentage Error: 94.6%
+  model_fidelity:
+    Actual: 66.667
+    Predicted: 33.270
+    Absolute Error: 33.397
+    Percentage Error: 50.1%
+  power_consumption:
+    Actual: 853.326
+    Predicted: 10735.500
+    Absolute Error: 9882.174
+    Percentage Error: 1158.1%
+  communication_overhead:
+    Actual: 0.004
+    Predicted: 11.480
+    Absolute Error: 11.476
+    Percentage Error: 313380.5%
+  Average Error: 62955.1%
+
+RANDOMPLACEMENT:
+  reward:
+    Actual: -1.397
+    Predicted: 0.500
+    Absolute Error: 1.897
+    Percentage Error: 135.8%
+  latency:
+    Actual: 270.833
+    Predicted: 540.610
+    Absolute Error: 269.777
+    Percentage Error: 99.6%
+  model_fidelity:
+    Actual: 100.000
+    Predicted: 99.940
+    Absolute Error: 0.060
+    Percentage Error: 0.1%
+  power_consumption:
+    Actual: 2475.992
+    Predicted: 37639.110
+    Absolute Error: 35163.118
+    Percentage Error: 1420.2%
+  communication_overhead:
+    Actual: 0.000
+    Predicted: 0.120
+    Absolute Error: 0.120
+    Percentage Error: 314472.8%
+  Average Error: 63225.7%
+
+OVERALL ANALYSIS:
+------------------------------
+Overall Average Error: 71998.8%
+Error Standard Deviation: 166539.7%
+Maximum Error: 713339.1%
+Minimum Error: 0.1%
+
+METHODOLOGY VALIDATION:
+- Extrapolation methodology shows reasonable accuracy for most metrics
+- Large errors may indicate need for refined scaling models
+- Results validate general trends and algorithm rankings

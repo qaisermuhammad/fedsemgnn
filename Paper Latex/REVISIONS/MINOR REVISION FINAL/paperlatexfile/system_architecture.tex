@@ -1,0 +1,93 @@
+\section{System Architecture}
+\label{sec:system_architecture}
+
+FedSemGNN enables scalable, low-latency, and privacy-preserving orchestration for 6G edge networks by integrating three core components:
+
+\begin{enumerate}
+	\item \textbf{Semantic-Aware Task Representation}: Custom continual learning encoder extracts compact semantic embeddings from service characteristics to enable intent-aware orchestration,
+	\item \textbf{GNN-Based Topology Encoding}: Graph convolutional network captures spatial dependencies and inter-node relationships across the edge infrastructure, and
+	\item \textbf{Hierarchical Federated PPO}: Two-level synchronization coordinates distributed policy learning while preserving privacy and minimizing communication overhead.
+\end{enumerate}
+
+The architecture follows a hierarchical federated learning paradigm where multiple edge clusters operate semi-autonomously while maintaining global coordination through periodic aggregation. Each cluster contains resource monitors, edge nodes with local orchestrators, and graph-based topology encoders. User devices equipped with semantic encoders generate service requests that are processed through the orchestration pipeline.
+
+Local orchestrators make placement decisions using policies learned through proximal policy optimization, leveraging both semantic compatibility and topological context. The two-level synchronization structure—intra-cluster coordination and global aggregation—balances responsiveness with communication efficiency, enabling the system to scale to large edge deployments while maintaining orchestration quality.
+
+\begin{figure*}[htbp]
+	\centering
+	\includegraphics[width=0.95\textwidth]{figures/architecture.png}
+	\caption{Complete FedSemGNN system architecture showing hierarchical federated learning with semantic embeddings, GNN topology encoding, and two-level synchronization. User devices with semantic encoder feed multiple edge clusters (Cluster 1, Cluster 2), each containing resource monitors, edge nodes, GCN encoders, and local PPO agents. Intra-cluster sync occurs every $K_1=10$ epochs, while global DP aggregation and policy distribution occur every $K_2=50$ epochs.}
+	\label{fig:system_framework}
+\end{figure*}
+
+\subsection{Semantic-Aware Task Representation}
+\label{subsec:semantic_representation}
+
+Service requests entering the FedSemGNN system are transformed into compact semantic embeddings that capture task intent and requirements. The semantic encoder processes heterogeneous service characteristics including resource demands (CPU, memory, network bandwidth), functional service types (web services, data analytics, real-time processing), temporal patterns (time-of-day preferences, periodic workloads), and quality-of-service requirements (latency sensitivity, throughput constraints).
+
+The encoder employs continual learning mechanisms to adapt to evolving service landscapes without forgetting previously learned patterns. When new service types emerge, the system preserves knowledge of existing services while incorporating novel patterns through regularization and experience replay. This adaptive capability is essential for dynamic edge environments where application requirements continuously evolve.
+
+Each edge node maintains a semantic capability profile that reflects its functional specialization and historical workload patterns. Semantic matching identifies compatible task-server pairs, enabling the system to maintain high placement fidelity by aligning service requirements with node capabilities. Tasks are considered semantically compatible with nodes when their embedding similarity exceeds a predefined threshold, ensuring quality-of-service consistency.
+
+Figure~\ref{fig:semantic_pipeline} illustrates the complete semantic processing pipeline from service arrival to placement decision. The pipeline begins with service/task input and graph/context features, which are processed by the semantic encoder to generate initial embeddings. These embeddings are then refined by the GNN encoder to incorporate topological context, followed by a projection head that produces the final 16-dimensional semantic vector $\mathbf{z}$. The semantic vector undergoes similarity search against server capability profiles to identify compatible placement candidates, culminating in the final placement decision that selects both the target cluster and specific edge node. A critical feedback loop (shown in purple dotted line) enables semantic adaptation: performance signals and policy outcomes are fed back to the semantic encoder, allowing the system to continuously refine its embedding space based on actual orchestration results. This adaptive mechanism is key to FedSemGNN's ability to maintain perfect semantic fidelity while adapting to evolving workload patterns.
+
+\begin{figure*}[htbp]
+	\centering
+	\includegraphics[width=0.85\textwidth]{figures/semantic_pipeline.png}
+	\caption{Semantic embedding pipeline showing the flow from service requests through the custom continual learning encoder ($128 \rightarrow 64 \rightarrow 64 \rightarrow 16$), GNN encoding, projection head, semantic vector generation, similarity-based matching, and final placement decision. The feedback loop (purple dotted line) enables continuous semantic adaptation based on orchestration performance.}
+	\label{fig:semantic_pipeline}
+\end{figure*}
+
+\subsection{Topology Encoding with Graph Neural Networks}
+\label{subsec:topology_encoding}
+
+The edge computing infrastructure is modeled as a graph where nodes represent compute servers and edges capture communication links with associated costs (latency, bandwidth, reliability). This graph representation enables the system to reason about spatial relationships, network proximity, and resource distribution across the infrastructure.
+
+Graph neural networks process this topological structure through iterative neighborhood aggregation, where each node accumulates information from its local neighborhood to build progressively richer representations. Initial node features include semantic affinity scores, current resource availability (CPU, memory, bandwidth), and historical usage patterns. Through multiple aggregation layers, nodes develop embeddings that encode both their local state and broader network context from multi-hop neighborhoods.
+
+The topology-aware embeddings enable spatially coherent orchestration decisions. By accounting for network proximity and communication costs, the system can place related services near each other and avoid bottleneck links. This spatial awareness is critical for reducing service migrations and maintaining stable placements even as workloads shift across the infrastructure.
+
+\subsection{Hierarchical Federated Proximal Policy Optimization}
+\label{subsec:hierarchical_ppo}
+
+The orchestration framework employs hierarchical federated learning to coordinate distributed policy learning across edge clusters. Each local orchestrator maintains its own policy for placement decisions, learning from local experiences while periodically synchronizing with neighboring orchestrators and the global coordinator.
+
+The hierarchical structure operates at two levels: intra-cluster coordination maintains coherence among orchestrators within the same edge cluster, while global aggregation ensures consistency across all clusters. This two-level design reduces communication overhead compared to flat federated architectures where all agents must synchronize with a central server for every update. Local coordination enables rapid adaptation to cluster-specific workload patterns, while global aggregation prevents policy divergence and ensures system-wide optimization.
+
+Privacy preservation is achieved through secure aggregation protocols where only model parameters (not raw data or trajectories) are transmitted during synchronization. Differential privacy mechanisms add calibrated noise during aggregation to provide formal privacy guarantees. Gradient clipping prevents any single agent from dominating the aggregated policy, ensuring fairness and stability.
+
+The policy learning algorithm employs proximal policy optimization, which constrains policy updates to prevent destructively large changes that could destabilize training. Each orchestrator maintains an actor-critic architecture: the actor network selects placement actions based on current state observations, while the critic network estimates state values to guide policy improvement. The compact neural architecture enables low-latency decision-making suitable for real-time orchestration requirements.
+
+\subsection{Workflow Summary}
+\label{subsec:workflow}
+
+Figure~\ref{fig:workflow} presents the complete end-to-end orchestration workflow showing how system components interact during service placement. The workflow begins when a service request arrives at the system and proceeds through semantic encoding, topology-aware state fusion, graph neural network processing, and policy-based decision-making. After service placement, the system evaluates placement quality through reward computation, updates the local policy, and periodically synchronizes with other orchestrators.
+
+Two critical feedback mechanisms enable continuous system improvement. The global policy broadcast ensures all local orchestrators remain coordinated by distributing aggregated parameters from the central coordinator. The semantic adaptation feedback allows the embedding encoder to refine its representations based on actual orchestration outcomes, creating a closed-loop learning system that continuously improves semantic fidelity.
+
+Synchronization decisions occur at strategic intervals to balance responsiveness with communication efficiency. Intra-cluster synchronization maintains local coherence, while global aggregation ensures system-wide consistency without requiring constant communication. This adaptive synchronization strategy allows the system to scale to large deployments while maintaining orchestration quality.
+
+\begin{figure}[!t]
+	\centering
+	\includegraphics[width=0.50\textwidth]{figures/workflowdiagram.png}
+	\caption{Complete FedSemGNN orchestration workflow showing the decision cycle: (0) Service Arrival $\rightarrow$ (1) Semantic Encoding $\rightarrow$ (2) GNN Encoding $\rightarrow$ (3) Cluster Selection $\rightarrow$ (4) Placement $\rightarrow$ (5) Reward Computation $\rightarrow$ (6) Local PPO Update $\rightarrow$ (7) Sync Decision $\rightarrow$ (7a-7b) Hierarchical Aggregation $\rightarrow$ (8) Policy Broadcast. Purple lines show critical feedback: solid for global policy broadcast to local agents, dotted for semantic adaptation feedback to encoder.}
+	\label{fig:workflow}
+\end{figure}
+
+\subsection{Design Rationale and System Characteristics}
+\label{subsec:design_rationale}
+
+The FedSemGNN architecture is designed to address three fundamental challenges in 6G edge orchestration: semantic heterogeneity of service requests, dynamic network topology, and distributed coordination at scale.
+
+\textbf{Semantic Awareness:} Traditional resource-based orchestration treats all services homogeneously, considering only CPU, memory, and bandwidth requirements. FedSemGNN's semantic layer enables intent-aware placement by matching service characteristics with node capabilities, improving quality-of-service consistency and reducing placement violations.
+
+\textbf{Topology Encoding:} Graph neural networks provide a principled approach to encode network structure, enabling the system to reason about spatial relationships and communication costs. This topological awareness reduces unnecessary service migrations by accounting for network proximity when making placement decisions.
+
+\textbf{Hierarchical Federation:} The two-level synchronization structure addresses the scalability-consistency tradeoff inherent in distributed learning. Frequent local coordination maintains cluster coherence, while periodic global aggregation ensures system-wide optimization without excessive communication overhead.
+
+\textbf{Compact Architecture:} The neural components employ small network architectures (16-64 hidden units) to enable sub-millisecond decision latency. This design choice prioritizes inference speed over model capacity, recognizing that orchestration decisions must be made in real-time as service requests arrive.
+
+\textbf{Privacy Preservation:} Secure aggregation and differential privacy mechanisms ensure that no agent can infer information about other agents' local workloads or placement decisions. This privacy guarantee is essential for multi-tenant edge infrastructures where competing service providers share physical infrastructure.
+
+The combination of these design choices enables FedSemGNN to deliver scalable, low-latency orchestration while maintaining semantic fidelity, privacy, and energy efficiency. The architecture is modular, allowing individual components to be upgraded or replaced without redesigning the entire system.
+

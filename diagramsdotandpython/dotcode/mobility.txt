@@ -1,0 +1,64 @@
+digraph FedSemGNN_Mobility_Tightest {
+  // ===== Global compact style =====
+  rankdir=LR;
+dpi=600;
+  splines=ortho;
+  newrank=true;
+  ratio=compress;
+  bgcolor="white";
+  fontname="Helvetica"; fontsize=11;
+  graph [pad=0.10, nodesep=0.15, ranksep=0.25];
+  node  [fontname="Helvetica", fontsize=10, style="rounded,filled", color="#222", penwidth=1.1];
+  edge  [color="#222", arrowsize=0.75, penwidth=1.0, constraint=true, labeldistance=0.6, labelfontsize=9];
+
+  // ===== Core nodes =====
+  user_t   [label="Mobile User (t)", shape=ellipse, fillcolor="#FFE08A"];
+  user_tdp [label="Mobile User (t + Δt)", shape=ellipse, fillcolor="#FFE08A"];
+  semenc   [label="Semantic Encoder", shape=box, fillcolor="#F6E3B3"];
+
+  // ===== Cluster A =====
+  subgraph cluster_A {
+    label="Cluster A"; style=dashed; color="#3B82F6"; penwidth=1.2; fontsize=10;
+    node [fillcolor="#BFE1FF"];
+    A1 [label="Edge Server A1\n+ Local PPO (A)", shape=box];
+  }
+
+  // ===== Cluster B =====
+  subgraph cluster_B {
+    label="Cluster B"; style=dashed; color="#10B981"; penwidth=1.2; fontsize=10;
+    node [fillcolor="#BFEFCF"];
+    B1 [label="Edge Server B1\n+ Local PPO (B)", shape=box];
+  }
+
+  // ===== Service instance & policy =====
+  svc    [label="Service Instance", shape=box, fillcolor="#E7F8EF"];
+  policy [label="Global Policy Distribution", shape=parallelogram, fillcolor="#F6D6C0"];
+
+  // ===== Tight mobility & migration =====
+  user_t   -> A1 [label="association"];
+  user_t   -> user_tdp [style=dashed, color="#9CA3AF", label="mobility"];
+  A1       -> svc [label="session"];
+  svc      -> B1  [color="#EA580C", penwidth=1.3, label="handover"];
+  B1       -> user_tdp [label="association"];
+
+  // ===== Feedback loops =====
+  policy -> A1 [color="#7C3AED", penwidth=1.2, label="policy", fontcolor="#7C3AED"];
+  policy -> B1 [color="#7C3AED", penwidth=1.2, label="policy", fontcolor="#7C3AED"];
+  policy -> semenc [color="#7C3AED", style=dotted, penwidth=1.0,
+                    label="semantic feedback", fontcolor="#7C3AED", constraint=false];
+
+  // ===== Compact caption =====
+  caption [label="User mobility triggers service migration between clusters;\n\
+global policy is rebroadcast to PPO agents while semantic\n\
+feedback informs encoder adaptation.",
+           shape=note, fillcolor="#F9FAFB", fontsize=9, fontcolor="#444444", width=1.8, height=0.5];
+
+  policy -> caption [style=invis, weight=10];
+  { rank=same; caption; }
+
+  // ===== Invisible anchors =====
+  leftpad  [label="", shape=point, width=0.01, style=invis];
+  rightpad [label="", shape=point, width=0.01, style=invis];
+  leftpad -> user_t [style=invis];
+  policy  -> rightpad [style=invis];
+}

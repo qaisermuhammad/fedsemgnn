@@ -1,0 +1,57 @@
+% Two-column version for IEEE-style papers
+
+\begin{table}[t]
+\centering
+\caption{FedSemGNN Hyperparameters Configuration}
+\label{tab:hyperparameters_ieee}
+\small
+\begin{tabular}{@{}llc@{}}
+\toprule
+\textbf{Category} & \textbf{Parameter} & \textbf{Value} \\
+\midrule
+\multicolumn{3}{l}{\textit{PPO Configuration}} \\
+& Learning Rate & 0.001 \\
+& Clipping Epsilon & 0.2 \\
+& Discount Factor & 0.99 \\
+& Batch Size & 64 \\
+& Update Epochs & 4 \\
+& Replay Buffer & 20,000 \\
+\midrule
+\multicolumn{3}{l}{\textit{GNN Architecture}} \\
+& Input Features & 128 \\
+& Hidden Dimension & 64 \\
+& Number of Layers & 2 \\
+& Activation & ReLU \\
+\midrule
+\multicolumn{3}{l}{\textit{Semantic Learning}} \\
+& Embedding Model & all-MiniLM-L6-v2 \\
+& Original Dim & 384 \\
+& Reduced Dim & 128 \\
+& Semantic Threshold & 0.3 \\
+& Online LR & 0.0001 \\
+\midrule
+\multicolumn{3}{l}{\textit{Federated Learning}} \\
+& Intra-Cluster Sync & 10 epochs \\
+& Inter-Cluster Sync & 50 epochs \\
+& Number of Clusters & 10 \\
+& Gradient Clipping & 0.5 \\
+\midrule
+\multicolumn{3}{l}{\textit{Reward Function}} \\
+& Base Reward Scale & 10,000 \\
+& Latency Weight & 0.01 \\
+& Smoothing Alpha & 0.2 \\
+\midrule
+\multicolumn{3}{l}{\textit{Network Architecture}} \\
+& Actor Hidden Units & 16 \\
+& Critic Hidden Units & 16 \\
+& Dropout Rate & 0.5 \\
+\midrule
+\multicolumn{3}{l}{\textit{Simulation Environment}} \\
+& Total Steps & 500 \\
+& Tick Duration & 1 second \\
+& Edge Servers & 6 \\
+& Users & 500 \\
+& Topology & Mesh \\
+\bottomrule
+\end{tabular}
+\end{table}

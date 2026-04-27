@@ -1,0 +1,68 @@
+% FedSemGNN Hyperparameters Table
+% Complete configuration from actual implementation
+
+\begin{table*}[t]
+\centering
+\caption{Complete Hyperparameters Configuration for FedSemGNN}
+\label{tab:hyperparameters}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}llccp{6cm}@{}}
+\toprule
+\textbf{Category} & \textbf{Parameter} & \textbf{Symbol} & \textbf{Value} & \textbf{Description} \\
+\midrule
+\multicolumn{5}{l}{\textit{PPO Configuration}} \\
+& Learning Rate & $\alpha$ & 0.001 & Adam optimizer learning rate \\
+& Clipping Epsilon & $\epsilon$ & 0.2 & PPO clipping range $[1-\epsilon, 1+\epsilon]$ \\
+& Discount Factor & $\gamma$ & 0.99 & Future reward discount factor \\
+& Entropy Coefficient & $\beta$ & 0.01 & Exploration vs exploitation weight \\
+& Batch Size & $B$ & 64 & Training batch size \\
+& Update Epochs & $E$ & 4 & PPO update iterations per batch \\
+& Replay Buffer Size & -- & 20,000 & Prioritized experience replay capacity \\
+& PER Alpha & $\alpha_{\text{PER}}$ & 0.6 & Prioritization exponent \\
+& PER Beta & $\beta_{\text{PER}}$ & 0.4 & Importance sampling weight \\
+\midrule
+\multicolumn{5}{l}{\textit{GNN Architecture}} \\
+& Input Features & $d_{\text{in}}$ & 128 & Semantic embedding dimension \\
+& Hidden Dimension & $d_h$ & 64 & GCN hidden layer size \\
+& Number of Layers & $L$ & 2 & GCN convolutional layers \\
+& Activation Function & $\sigma$ & ReLU & Non-linear activation \\
+& Normalization & -- & Symmetric & $\tilde{D}^{-\frac{1}{2}} \tilde{A} \tilde{D}^{-\frac{1}{2}}$ \\
+\midrule
+\multicolumn{5}{l}{\textit{Semantic Learning}} \\
+& Original Embedding Dim & -- & 384 & Sentence-BERT output dimension \\
+& Reduced Embedding Dim & $d_s$ & 128 & Optimized semantic dimension \\
+& Semantic Threshold & $\tau_{\text{sem}}$ & 0.3 & Similarity matching threshold \\
+& Online Learning Rate & $\alpha_{\text{online}}$ & 0.0001 & Semantic adaptation rate \\
+& EWC Lambda & $\lambda_{\text{ewc}}$ & 0.4 & Elastic weight consolidation \\
+\midrule
+\multicolumn{5}{l}{\textit{Federated Learning}} \\
+& Intra-Cluster Sync & $K_1$ & 10 & Epochs between cluster aggregation \\
+& Inter-Cluster Sync & $K_2$ & 50 & Epochs between global aggregation \\
+& Number of Clusters & $C$ & 10 & Hierarchical partitions \\
+& Reclustering Interval & -- & 50 & Adaptive clustering frequency (epochs) \\
+& Gradient Clipping Norm & -- & 0.5 & Maximum gradient norm \\
+& Noise Scale (DP) & $\sigma_{\text{DP}}$ & 1.0 & Differential privacy noise \\
+\midrule
+\multicolumn{5}{l}{\textit{Reward Function}} \\
+& Base Reward Scale & $R_{\text{base}}$ & 10,000 & Maximum achievable reward \\
+& Latency Weight & $w_l$ & 0.01 & Latency penalty coefficient \\
+& Smoothing Alpha & $\alpha_{\text{smooth}}$ & 0.2 & Exponential moving average weight \\
+\midrule
+\multicolumn{5}{l}{\textit{Neural Network Architecture}} \\
+& Actor Hidden Units & $h_{\text{actor}}$ & 16 & Policy network hidden layer \\
+& Critic Hidden Units & $h_{\text{critic}}$ & 16 & Value network hidden layer \\
+& Dropout Rate & $p_{\text{drop}}$ & 0.5 & Regularization dropout \\
+\midrule
+\multicolumn{5}{l}{\textit{Simulation Parameters}} \\
+& Simulation Steps & $T$ & 500 & Total timesteps \\
+& Tick Duration & $\Delta t$ & 1 s & Time per simulation step \\
+& Number of Servers & $N$ & 6 & Edge servers in topology \\
+& Number of Users & $U$ & 500 & User population \\
+& Graph Topology & -- & Mesh & Grid 2D connectivity pattern \\
+\bottomrule
+\end{tabular}%
+}
+\vspace{0.1cm}
+\footnotesize
+\textit{Note: All values extracted from actual implementation. PER = Prioritized Experience Replay; EWC = Elastic Weight Consolidation; DP = Differential Privacy.}
+\end{table*}

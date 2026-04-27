@@ -1,0 +1,37 @@
+Essential Diagrams for High-Tier Journal Submission
+System Architecture Diagram
+
+Shows all major components: edge servers, users, base stations, cloud, communication links, and their interactions.
+Highlights hierarchical, semantic, and federated layers.
+Federated Learning Workflow Diagram
+
+Step-by-step flow: data generation, local training, model aggregation, semantic adaptation, and feedback.
+Shows both hierarchical and flat federation.
+Mobility Model Diagram
+
+Illustrates user movement, handover, and how mobility affects service placement and learning.
+Semantic Matching & GNN Encoder Diagram
+
+Visualizes the semantic vector extraction, GNN encoder, and projection head.
+Shows how semantic similarity is computed and used for placement.
+Fault Tolerance & Recovery Diagram
+
+Depicts cluster health monitoring, failure detection, and automatic recovery mechanisms.
+Hardware Energy Modeling Diagram
+
+Shows different hardware profiles, DVFS, and energy measurement points.
+Extreme Scale Federation Diagram
+
+Illustrates clustering, communication compression, and scalability features for 10,000+ nodes.
+Online Semantic Learning Flow
+
+Shows real-time adaptation, feedback loop, and embedding updates.
+Experiment Pipeline Diagram
+
+End-to-end: dataset, simulation, metrics logging, analysis, and visualization.
+Metrics & Results Flow
+
+How metrics are collected, normalized, and compared across algorithms.
+Deployment/Testbed Preparation Diagram
+
+Shows how the system can be deployed on a physical testbed or cloud.

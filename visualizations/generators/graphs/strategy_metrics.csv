@@ -1,0 +1,6 @@
+Strategy,Hierarchical,Semantic,RL-Based,Reward,Latency,Power,Fidelity,Bytes Exch.
+FlatFedPPO,✖,✖,✔,2314.7,6.00s,7685.2W,N/A,25.5MB
+HierFedPPO,✔,✖,✔,5785.0,0.33s,4211.6W,N/A,6.2MB
+HSQF Heur.,✖,✔,✖,6754.3,0.28s,3242.8W,100.0%,0.2MB
+Random Placement,✖,✖,✖,6945.6,0.27s,3051.7W,N/A,0.0MB
+FedSemGNN (Ours),✔,✔,✔,7896.0,0.31s,2101.0W,50.0%,2.9MB

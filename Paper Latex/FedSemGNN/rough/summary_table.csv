@@ -1,0 +1,48 @@
+% TODO: \usepackage{graphicx} required
+\begin{figure}
+\centering
+\includegraphics[width=0.7\linewidth]{ti_vs_lag}
+\caption{}
+\label{fig:tivslag}
+\end{figure}
+% TODO: \usepackage{graphicx} required
+\begin{figure}
+\centering
+\includegraphics[width=0.7\linewidth]{timeline}
+\caption{}
+\label{fig:timeline}
+\end{figure}
+% TODO: \usepackage{graphicx} required
+\begin{figure}
+\centering
+\includegraphics[width=0.7\linewidth]{timeline}
+\caption{}
+\label{fig:timeline}
+\end{figure}
+% TODO: \usepackage{graphicx} required
+\begin{figure}
+\centering
+\includegraphics[width=0.7\linewidth]{topology}
+\caption{}
+\label{fig:topology}
+\end{figure}
+% TODO: \usepackage{graphicx} required
+\begin{figure}
+\centering
+\includegraphics[width=0.7\linewidth]{topology}
+\caption{}
+\label{fig:topology}
+\end{figure}
+Method,MeanFidelity,StdFidelity,MeanReward,StdReward
+HSQF gcn 500steps,0.9983333333333334,0.01666666666666667,6800.613396000002,39.785015957557825
+HSQF gcn 1000steps,0.9966666666666666,0.023450882356048277,7085.7822395,33.28251754594139
+FedSemGNN gcn 500steps,0.7933333333333333,0.20256492218351715,7273.901654333335,34.78732045785455
+RandomPlacement gcn 500steps,0.7916666666666667,0.18099209077969014,7201.421758833332,34.32669668905277
+FlatFedPPO gcn 500steps,0.79,0.1651785416368723,3692.1967416666653,4.570382840298462e-13
+FedSemGNN gcn 1000steps,0.7866666666666667,0.19110406376482386,8833.342199999997,1.828153136119385e-12
+HierFedPPO gcn 500steps,0.7733333333333334,0.17330225051530646,2960.7388033333345,106.02662382942255
+FedSemGNN linear 1000steps,0.7716666666666664,0.1844928134217289,7521.779896416667,13.504381454173274
+HierFedPPO gcn 1000steps,0.77,0.17533037597843892,3512.3691611111117,9.140765680596925e-13
+FedSemGNN linear 500steps,0.7683333333333333,0.2036355870195228,8109.027241416667,32.528636446935224
+FlatFedPPO gcn 1000steps,0.7683333333333333,0.1496254208162277,3246.9077666666667,4.570382840298462e-13
+RandomPlacement gcn 1000steps,0.7633333333333333,0.1678075430149218,6905.88667886111,30.04095458981724

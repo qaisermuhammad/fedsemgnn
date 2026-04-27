@@ -1,0 +1,33 @@
+######################################################################
+# FedSemGNN Requirements (2025 Publication-Ready, 6G-Optimized)
+# - All algorithms standardized, 100% fairness, scalability, reproducibility
+# - Unified metrics, explicit node/step count, supervisor recommendations
+# - Publication-quality graphs, semantic learning, multi-cluster, energy modeling
+# - 6G edge intelligence, robust error handling, and production reliability
+######################################################################
+torch>=2.1.0
+numpy>=1.25.0
+pandas>=2.1.0
+matplotlib>=3.8.0
+seaborn>=0.13.0
+scikit-learn>=1.4.0
+networkx>=3.2.0
+edge-sim-py>=2.2.0
+gym>=0.27.0
+tensorboard>=2.15.0
+scipy>=1.12.0
+joblib>=1.4.0
+torch-geometric>=2.4.0
+tqdm>=4.68.0
+pyyaml>=6.0.1
+click>=8.1.7
+plotly>=5.20.0
+dash>=2.15.0
+pytest>=8.0.0
+pytest-cov>=4.2.0
+black>=24.4.0
+flake8>=7.1.0
+isort>=5.14.0
+mypy>=1.10.0
+sphinx>=7.3.0
+sphinx-rtd-theme>=2.1.0

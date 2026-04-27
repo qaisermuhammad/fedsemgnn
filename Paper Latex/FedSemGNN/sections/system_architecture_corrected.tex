@@ -1,0 +1,146 @@
+\section{System Architecture}
+\label{sec:system_architecture}
+
+FedSemGNN is designed for scalable, low-latency, and privacy-preserving orchestration in edge computing networks targeted at future 6G environments. The system integrates three main components, as illustrated in Fig.~\ref{fig:system_framework}:
+
+\begin{enumerate}
+	\item \textbf{Semantic-Aware Task Representation},
+	\item \textbf{Graph Neural Network (GNN)-Based Topology Encoding}, and
+	\item \textbf{Hierarchical Federated Proximal Policy Optimization (PPO)}.
+\end{enumerate}
+
+Incoming service requests are first encoded into semantic embeddings that capture task context and QoS intent. These are fused with node resource states and passed through a two-layer GCN encoder to generate topology-aware representations. Cluster-level PPO agents then use these representations to make placement decisions, coordinating through a hierarchical federated learning cycle with two synchronization levels. This pipeline minimizes synchronization overhead, supports privacy-preserving training, and achieves consistent low-latency orchestration.
+
+\begin{figure*}[!t]
+	\centering
+	\includegraphics[width=0.95\linewidth]{architecture.png}
+	\caption{System architecture of FedSemGNN: semantic embedding, GCN-based topology encoding, and hierarchical federated PPO orchestration.}
+	\label{fig:system_framework}
+\end{figure*}
+
+\subsection{Semantic-Aware Task Representation}
+\label{subsec:semantic_representation}
+
+Service requests are embedded using the pre-trained Sentence-BERT model \texttt{all-MiniLM-L6-v2}~\cite{Reimers2019_SentenceBERT}, which generates 384-dimensional embeddings. These are projected to an optimized 128-dimensional semantic space ($d_s = 128$) for computational efficiency while maintaining semantic expressiveness. Each edge node $v$ maintains a semantic profile $\mathbf{p}_v \in \mathbb{R}^{128}$ based on its historical workload and functional specialization, enabling online semantic learning with elastic weight consolidation ($\lambda_{\text{ewc}} = 0.4$).
+
+Semantic affinity between task $i$ and node $v$ is computed using cosine similarity:
+\begin{equation}
+	\text{sim}(i,v) = \frac{\mathbf{s}_i \cdot \mathbf{p}_v}{\|\mathbf{s}_i\|_2 \|\mathbf{p}_v\|_2},
+\end{equation}
+where $\mathbf{s}_i \in \mathbb{R}^{128}$ is the task embedding and $\mathbf{p}_v \in \mathbb{R}^{128}$ is the node profile. Tasks with similarity above threshold $\tau_{\text{sem}} = 0.3$ are considered semantically compatible with the node.
+
+The fused representation for orchestration incorporates both semantic alignment and real-time resource metrics $\mathbf{r}_v$:
+\begin{equation}
+	\mathbf{z}_v = [\text{sim}(i,v), \mathbf{r}_v] \in \mathbb{R}^{d_{\text{in}}},
+\end{equation}
+where $d_{\text{in}} = 128$ is the input feature dimension for the GNN encoder. This concatenated representation allows FedSemGNN to maintain high semantic fidelity (100\% in our experiments) by consistently aligning task intent with node capabilities.
+
+\subsection{Topology Encoding with Graph Neural Networks}
+\label{subsec:topology_encoding}
+
+Each cluster is modeled as a graph $G_k = (V_k, E_k)$, where nodes represent edge servers and edges encode communication costs (latency and bandwidth). The network topology follows a mesh connectivity pattern generated using NetworkX. Node features $\mathbf{h}_v^{(0)} \in \mathbb{R}^{128}$ include semantic affinity scores, CPU and memory availability, network bandwidth statistics, and historical load profiles.
+
+A two-layer Graph Convolutional Network~\cite{Kipf2017_GCN} performs neighborhood aggregation with symmetric normalization. Each node $v$ updates its embedding at layer $l$ as:
+\begin{equation}
+	\mathbf{h}_v^{(l+1)} = \text{ReLU} \left( \sum_{u \in \mathcal{N}(v) \cup \{v\}} \frac{1}{\sqrt{\tilde{d}_u \tilde{d}_v}} \mathbf{W}^{(l)} \mathbf{h}_u^{(l)} \right),
+\end{equation}
+where $\mathcal{N}(v)$ is the neighborhood of node $v$, $\tilde{d}_v = d_v + 1$ accounts for self-loops, and $\mathbf{W}^{(l)} \in \mathbb{R}^{d_l \times d_{l+1}}$ is the learnable weight matrix. The GCN architecture consists of:
+\begin{itemize}
+	\item \textbf{Layer 1}: $\mathbf{W}^{(0)} \in \mathbb{R}^{128 \times 64}$ maps input features to hidden dimension $d_h = 64$,
+	\item \textbf{Layer 2}: $\mathbf{W}^{(1)} \in \mathbb{R}^{64 \times 64}$ maintains the hidden dimension,
+	\item \textbf{Activation}: ReLU non-linearity between layers,
+	\item \textbf{Normalization}: Symmetric $\tilde{D}^{-\frac{1}{2}} \tilde{A} \tilde{D}^{-\frac{1}{2}}$ with cached edge indices for efficiency.
+\end{itemize}
+
+Final embeddings $\mathbf{h}_v^{(2)} \in \mathbb{R}^{64}$ encode both local resource states and multi-hop structural context from neighboring servers, enabling spatially coherent orchestration decisions that account for network proximity and reduce unnecessary service migrations.
+
+\subsection{Hierarchical Federated Proximal Policy Optimization}
+\label{subsec:hierarchical_ppo}
+
+Edge servers are organized into $C = 10$ clusters based on both geographical proximity and semantic service profiles. Each cluster is managed by a local PPO agent~\cite{Schulman2017_PPO} that learns a stochastic policy $\pi_{\theta_k}(a|s)$ for task placement.
+
+\subsubsection{Actor-Critic Architecture}
+The PPO agent employs a compact two-layer architecture:
+\begin{itemize}
+	\item \textbf{Actor Network}: $\mathbb{R}^{64} \xrightarrow{\text{Linear}} \mathbb{R}^{16} \xrightarrow{\text{ReLU}} \mathbb{R}^{16} \xrightarrow{\text{Linear}} \mathbb{R}^{|A|}$ with dropout ($p_{\text{drop}} = 0.5$) for regularization,
+	\item \textbf{Critic Network}: $\mathbb{R}^{64} \xrightarrow{\text{Linear}} \mathbb{R}^{16} \xrightarrow{\text{ReLU}} \mathbb{R}^{16} \xrightarrow{\text{Linear}} \mathbb{R}^{1}$ for state value estimation,
+\end{itemize}
+where $|A|$ is the number of available edge servers (actions). Both networks use $h_{\text{actor}} = h_{\text{critic}} = 16$ hidden units and are trained with learning rate $\alpha = 0.001$ using the Adam optimizer.
+
+\subsubsection{Policy Optimization}
+Each cluster agent optimizes its policy using the PPO clipped objective over locally collected trajectories stored in a prioritized experience replay buffer (capacity 20,000):
+\begin{equation}
+	L^{\text{CLIP}}(\theta) = \mathbb{E}_t \left[ \min \left( r_t(\theta)\hat{A}_t, \ \text{clip}(r_t(\theta), 1-\epsilon, 1+\epsilon)\hat{A}_t \right) \right],
+\end{equation}
+where $r_t(\theta) = \frac{\pi_\theta(a_t|s_t)}{\pi_{\theta_{\text{old}}}(a_t|s_t)}$ is the probability ratio, $\hat{A}_t$ is the TD advantage estimate, and $\epsilon = 0.2$ is the clipping parameter. Training uses mini-batches of size $B = 64$ with $E = 4$ update epochs per batch.
+
+The advantage is computed using temporal difference estimation:
+\begin{equation}
+	\hat{A}_t = R_t + \gamma V(s_{t+1}) - V(s_t),
+\end{equation}
+with discount factor $\gamma = 0.99$. An entropy bonus with coefficient $\beta = 0.01$ encourages exploration during early training.
+
+\subsubsection{Hierarchical Federated Aggregation}
+FedSemGNN employs a two-level hierarchical synchronization protocol:
+
+\begin{enumerate}
+	\item \textbf{Intra-Cluster Synchronization} (every $K_1 = 10$ epochs): Policies within each cluster are aggregated locally to maintain cluster cohesion and reduce global communication overhead.
+	
+	\item \textbf{Inter-Cluster Synchronization} (every $K_2 = 50$ epochs): All cluster-level policies $\{\theta_k\}_{k=1}^C$ are transmitted to the global coordinator, which computes the weighted average:
+	\begin{equation}
+		\theta_{\text{global}} = \frac{\sum_{k=1}^{C} n_k \theta_k}{\sum_{k=1}^{C} n_k},
+	\end{equation}
+	where $n_k$ is the number of training trajectories from cluster $k$.
+\end{enumerate}
+
+Privacy preservation is ensured through:
+\begin{itemize}
+	\item \textbf{Gradient Clipping}: Maximum norm constraint of 0.5 prevents gradient explosion,
+	\item \textbf{Differential Privacy Noise}: Gaussian noise with scale $\sigma_{\text{DP}} = 1.0$ is added during aggregation,
+	\item \textbf{Secure Aggregation}: Only model parameters (not raw data or trajectories) are transmitted.
+\end{itemize}
+
+This hierarchical structure significantly reduces communication overhead compared to flat federated architectures, enabling ultra-low orchestration latency while maintaining convergence stability.
+
+\begin{figure}[!t]
+	\centering
+	\includegraphics[width=0.95\linewidth]{federated_cycle.pdf}
+	\caption{Hierarchical federated PPO cycle: local cluster training ($K_1$ epochs), intra-cluster aggregation, inter-cluster global aggregation ($K_2$ epochs), and policy broadcast.}
+	\label{fig:federated_cycle}
+\end{figure}
+
+\subsection{Workflow Summary}
+\label{subsec:workflow}
+
+The end-to-end orchestration pipeline (Fig.~\ref{fig:data_flow}) consists of:
+
+\begin{enumerate}
+	\item \textbf{Semantic Embedding}: Service requests are embedded using Sentence-BERT (\texttt{all-MiniLM-L6-v2}) and projected from 384-D to 128-D.
+	\item \textbf{State Fusion}: Semantic similarity scores and node resource metrics are concatenated into $\mathbb{R}^{128}$.
+	\item \textbf{GNN Encoding}: The fused state is processed by a two-layer GCN (128 → 64 → 64) per cluster with ReLU activation.
+	\item \textbf{PPO Decision}: GNN embeddings $\mathbf{h}_v^{(2)} \in \mathbb{R}^{64}$ are fed to the actor-critic network for stochastic action selection.
+	\item \textbf{Hierarchical Federated Aggregation}: Cluster policies are aggregated at two levels ($K_1 = 10$, $K_2 = 50$ epochs) and redistributed with differential privacy.
+\end{enumerate}
+
+\begin{figure*}[!t]
+	\centering
+	\includegraphics[width=0.95\linewidth]{DataPipeline.pdf}
+	\caption{FedSemGNN pipeline from task ingestion to hierarchical federated coordination. Each stage incorporates semantic, resource, and topological cues with privacy-preserving aggregation.}
+	\label{fig:data_flow}
+\end{figure*}
+
+\subsection{Performance Characteristics}
+\label{subsec:performance}
+
+This architecture achieves exceptional performance across all metrics in the 6-server, 500-user baseline configuration:
+
+\begin{itemize}
+	\item \textbf{Ultra-Low Latency}: \textbf{0.36 ms} per orchestration step—315$\times$ faster than FlatFedPPO (114.25 ms) and 222$\times$ faster than HierFedPPO (80.71 ms),
+	\item \textbf{Energy Efficiency}: \textbf{72.1 W} aggregate power consumption—36.2$\times$ lower than FlatFedPPO (2607.9 W) and 14.7$\times$ lower than HierFedPPO (1057.4 W),
+	\item \textbf{Communication Efficiency}: \textbf{1.394 reward per MB} of communication—demonstrating superior reward-to-bytes ratio,
+	\item \textbf{Reward Optimization}: \textbf{0.91} normalized reward—2.9$\times$ higher than Random (0.31) and 1.9$\times$ higher than GreedyPower (0.47),
+	\item \textbf{Perfect Semantic Fidelity}: \textbf{100\%} semantic alignment maintained throughout simulation,
+	\item \textbf{Zero Service Migrations}: Complete orchestration stability with \textbf{0 migrations} compared to 6,840 (FlatFedPPO) and 1,181 (HierFedPPO).
+\end{itemize}
+
+The combination of semantic modeling, graph-based topology encoding, compact neural architectures, and hierarchical federated learning enables FedSemGNN to deliver scalable, stable, and energy-efficient orchestration suitable for future 6G edge-AI infrastructures. The system maintains these performance characteristics while preserving privacy through differential privacy mechanisms and secure aggregation protocols.

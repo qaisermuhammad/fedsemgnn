@@ -1,0 +1,78 @@
+digraph FedSemGNN_FullArch {
+  rankdir=LR;
+dpi=600;
+  fontsize=11;
+  compound=true;
+  node [fontname="Helvetica", style=filled, fontsize=10];
+
+  // User Input
+  UserDevice [label="User Devices\n(XR/AR)", shape=ellipse, fillcolor=gold];
+  SemanticEncoder [label="Semantic Encoder", shape=box, fillcolor=lightgoldenrod1];
+  SemanticVec [label="Semantic Embedding", shape=plaintext];
+
+  // CLUSTER 1
+  subgraph cluster_Cluster1 {
+    label="Cluster 1";
+    style=dashed;
+    color=blue;
+    
+    ResourceMonitor1 [label="Resource Monitor", shape=component, fillcolor=lightcyan];
+    NodeA [label="Edge Node A", shape=box, fillcolor=lightblue];
+    NodeB [label="Edge Node B", shape=box, fillcolor=lightblue];
+    GCN1 [label="GCN Encoder", shape=parallelogram, fillcolor=skyblue];
+    PPO1 [label="Local PPO Agent", shape=hexagon, fillcolor=plum];
+    SyncBlock1 [label="Intra-cluster Sync\n$K_{intra}$", shape=note, fillcolor=lavender];
+  }
+
+  // CLUSTER 2
+  subgraph cluster_Cluster2 {
+    label="Cluster 2";
+    style=dashed;
+    color=darkgreen;
+
+    ResourceMonitor2 [label="Resource Monitor", shape=component, fillcolor=mintcream];
+    NodeC [label="Edge Node C", shape=box, fillcolor=lightgreen];
+    NodeD [label="Edge Node D", shape=box, fillcolor=lightgreen];
+    GCN2 [label="GCN Encoder", shape=parallelogram, fillcolor=palegreen];
+    PPO2 [label="Local PPO Agent", shape=hexagon, fillcolor=thistle];
+    SyncBlock2 [label="Intra-cluster Sync\n$K_{intra}$", shape=note, fillcolor=honeydew];
+  }
+
+  // Federated Aggregation
+  FedAgg [label="Federated Aggregator", shape=box, fillcolor=salmon];
+  DPNoise [label="DP Noise\nInjection", shape=ellipse, fillcolor=pink];
+  GlobalPolicy [label="Global Policy\nDistribution", shape=parallelogram, fillcolor=mistyrose];
+
+  // Inputs and Embedding
+  UserDevice -> SemanticEncoder -> SemanticVec [arrowhead=none];
+  SemanticVec -> NodeA;
+  SemanticVec -> NodeB;
+  SemanticVec -> NodeC;
+  SemanticVec -> NodeD;
+
+  // Resource State Flow
+  ResourceMonitor1 -> NodeA;
+  ResourceMonitor1 -> NodeB;
+  ResourceMonitor2 -> NodeC;
+  ResourceMonitor2 -> NodeD;
+
+  // Intra-cluster logic
+  NodeA -> GCN1;
+  NodeB -> GCN1;
+  GCN1 -> PPO1;
+  PPO1 -> SyncBlock1 [label="Δθ₁"];
+  SyncBlock1 -> FedAgg;
+
+  NodeC -> GCN2;
+  NodeD -> GCN2;
+  GCN2 -> PPO2;
+  PPO2 -> SyncBlock2 [label="Δθ₂"];
+  SyncBlock2 -> FedAgg;
+
+  // Fed Sync
+  FedAgg -> DPNoise [style=dashed, label="Noise Applied"];
+  DPNoise -> GlobalPolicy [label="π Aggregated"];
+
+  GlobalPolicy -> PPO1 [ltail=cluster_Cluster1];
+  GlobalPolicy -> PPO2 [ltail=cluster_Cluster2];
+}

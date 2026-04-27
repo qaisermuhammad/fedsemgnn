@@ -1,0 +1,27 @@
+sample_dataset3.json has the following entries.
+
+
+NetworkSwitch AT LINE 2
+
+NetworkLink AT LINE 450
+
+BaseStation AT LINE 1343
+
+User AT LINE 1692
+
+ContainerLayer AT LINE 3410
+
+ContainerImage AT LINE 3832
+
+Service AT LINE 4079
+
+ContainerRegistry AT LINE 4189
+
+Application AT LINE 4204
+
+EdgeServer AT LINE 4326
+
+RandomDurationAndIntervalAccessPattern AT LINE 4731
+
+CircularDurationAndIntervalAccessPattern AT LINE 4732
+

@@ -1,0 +1,28 @@
+% Scalability Hyperparameter Adjustments Table
+
+\begin{table}[t]
+\centering
+\caption{Hyperparameter Adjustments for Scalability (1K--10K Nodes)}
+\label{tab:scalability_hyperparameters}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+\textbf{Parameter} & \textbf{Base (6)} & \textbf{1K Nodes} & \textbf{10K Nodes} \\
+\midrule
+Learning Rate ($\alpha$) & 0.001 & $10^{-4}$ & $10^{-5}$ \\
+Batch Size ($B$) & 64 & 32 & 16 \\
+Update Epochs ($E$) & 4 & 2 & 1 \\
+Clipping ($\epsilon$) & 0.2 & 0.15 & 0.1 \\
+Cluster Size Range & 1--2 & 20--200 & 50--500 \\
+Intra-Sync ($K_1$) & 10 & 15 & 20 \\
+Inter-Sync ($K_2$) & 50 & 75 & 100 \\
+\midrule
+\textbf{Communication} & & & \\
+Compression Ratio & -- & 0.1 & 0.05 \\
+Quantization (bits) & -- & 8 & 4 \\
+Top-K Ratio & -- & 0.1 & 0.05 \\
+\bottomrule
+\end{tabular}
+\vspace{0.1cm}
+\footnotesize
+\textit{Note: Conservative hyperparameters ensure stability at extreme scales. Compression and quantization reduce communication overhead.}
+\end{table}

@@ -1,0 +1,27 @@
+\section{Limitations and Future Work}
+\label{sec:limitations_future}
+
+While FedSemGNN demonstrates strong performance across multiple dimensions, several limitations highlight opportunities for further advancement.
+
+\textbf{Simulation-Centric Evaluation.}
+All experiments were conducted in the EdgeSimPy simulator~\cite{edgesimpy}. Although EdgeSimPy provides realistic modeling of latency, workload patterns, and migration costs, the simulator cannot fully capture physical layer impairments, hardware scheduling delays, or cross-layer interference effects that occur in real deployments. Future work will involve deploying FedSemGNN in a physical 6G edge testbed to validate robustness under real-world operating conditions and hardware constraints.
+
+\textbf{Scalability at Extreme Scale.}
+Although the hierarchical federated PPO design significantly reduces synchronization traffic, large-scale evaluations beyond the baseline experimental configuration were validated through mathematical extrapolation rather than direct simulation due to computational constraints. The scalability analysis predicts favorable logarithmic scaling to 10,000 nodes based on power-law and logarithmic models fitted to empirical base results. However, empirical validation at extreme scales (1,000 to 10,000 nodes) will require distributed simulation infrastructure and adaptive clustering techniques~\cite{Zhou2023_MARLFed, Bonawitz2019TowardsFL} to confirm these predictions under realistic network conditions.
+
+\textbf{Static Semantic Embeddings.}
+The current implementation uses a custom continual learning encoder that generates 16-dimensional semantic embeddings from service features (CPU, memory, network requirements, service types, temporal patterns). While this encoder adapts during training through gradient updates, it may benefit from more sophisticated online adaptation techniques in domains with rapidly evolving service semantics. Continual learning or meta-learning approaches~\cite{Hu2023_PersonalizedFL} could enable greater generalization to emerging workloads and dynamic service vocabularies, particularly in environments where new service types are continuously introduced.
+
+\textbf{Fault Tolerance and Recovery.}
+While the hierarchical federated architecture provides inherent resilience through local isolation, our evaluation did not explicitly test fault recovery scenarios such as server failures or network partitions. Multi-node simultaneous failures, which are more likely in dense interconnected infrastructures, remain an open challenge. Future extensions will consider proactive redundancy mechanisms, resilience-aware reward shaping, and multi-node failover strategies to enhance robustness under failure conditions.
+
+\textbf{Energy Modeling Approximation.}
+Power consumption estimates (72.1 W for FedSemGNN versus 2607.9 W for FlatFedPPO) were computed using utilization-based models integrated into EdgeSimPy rather than hardware-level power measurements. While these models are sufficient for comparative analysis and demonstrate substantial energy efficiency improvements (36.2 times lower than FlatFedPPO), integrating hardware-in-the-loop profiling with DVFS, RAPL counters, and CPU/GPU power sensors will improve the accuracy of absolute energy efficiency claims in future work.
+
+\textbf{Limited Baseline Diversity.}
+We compare FedSemGNN against four baselines covering federated RL variants (FlatFedPPO, HierFedPPO), semantic Q-learning (HSQF), and random placement (RandomPlacement). While these baselines represent the primary categories of edge orchestration approaches, comparisons with additional methods such as greedy heuristics (power-first, latency-first), state-of-the-art centralized deep RL methods (SAC, TD3), and recent graph-based orchestration techniques could provide broader context. Future work will expand the baseline suite to include these approaches and strengthen the comparative analysis.
+
+\textbf{Hyperparameter Sensitivity.}
+The reported results use fixed hyperparameters ($\alpha = 0.001$, $\epsilon = 0.2$, $K_1 = 10$, $K_2 = 50$) tuned for the baseline experimental configuration. While these parameters achieve strong performance in our experimental setup, sensitivity analysis across different network topologies, node counts, and synchronization intervals would provide insights into parameter robustness. Future work will investigate adaptive hyperparameter selection strategies to guide parameter tuning for diverse deployment scenarios and network configurations.
+
+Addressing these limitations will help transition FedSemGNN from a simulation-validated framework toward a production-ready orchestration solution capable of operating under the diverse conditions of real 6G edge deployments.

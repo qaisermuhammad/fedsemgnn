@@ -1,0 +1,868 @@
+\documentclass[conference]{IEEEtran}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{cite}
+\usepackage{amsmath, amssymb}
+\usepackage{booktabs}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usepackage{subcaption}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{pgfplotstable}
+\pgfplotsset{compat=1.17}
+\usetikzlibrary{positioning, arrows.meta, shapes.geometric, shapes.multipart, calc}
+\usepackage{float}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\renewcommand{\algorithmicrequire}{\textbf{Input:}}
+\renewcommand{\algorithmicensure}{\textbf{Output:}}
+\usepackage{pifont}
+% --- Hyperref (load last in preamble) ---
+\usepackage[pdfencoding=auto,unicode,psdextra,colorlinks=true, linkcolor=blue, citecolor=blue, urlcolor=blue]{hyperref}
+
+% --- TITLE ---
+\title{FedSemGNN: A Scalable, Semantic-Aware Federated RL Framework for Efficient 6G Edge Orchestration}
+
+
+% --- AUTHORS ---
+\author{
+	Qaiser Muhammad Abdur Rehman\textsuperscript{a}, 
+	Mingchu Li\textsuperscript{a,b*}, 
+	Sanam Shahla Rizvi\textsuperscript{c}, 
+	and Se Jin Kwon\textsuperscript{d*} \\[4pt]
+	\textsuperscript{a}School of Software, Dalian University of Technology, Dalian 116024, China\\
+	\textsuperscript{b}School of Computer and Information Engineering, Jiangxi Normal University, Nanchang, Jiangxi, China\\
+	\textsuperscript{c}Raptor Interactive (Pty) Ltd., Centurion 0157, South Africa\\
+	\textsuperscript{d}Department of Computer Science \& Artificial Intelligence, Dongguk University, Seoul 04620, South Korea\\[6pt]
+	\textit{Emails:} qaisermuhammad@hotmail.com, mingchu@jxnu.edu.cn, 
+	sanam\_shahla@hotmail.com, skwon1109@gmail.com\\[2pt]
+	*Corresponding authors: mingchu@jxnu.edu.cn, skwon1109@gmail.com
+}
+
+
+
+\begin{document}
+	
+	\maketitle
+	
+	\begin{abstract}
+		Sixth-generation (6G) edge networks must orchestrate heterogeneous services across massive device populations under strict latency, energy, and privacy constraints. Existing reinforcement-learning (RL) approaches for edge orchestration either ignore semantic task content, lack awareness of network topology, or incur prohibitive communication overhead when deployed in federated settings, limiting applicability to latency-critical 6G scenarios. To address these shortcomings, we propose FedSemGNN, a hierarchical federated RL framework that jointly integrates three complementary capabilities: (i)~continual semantic task embeddings regularized by elastic weight consolidation for intent-aware service placement, (ii)~graph convolutional network-based topology encoding that captures spatial relationships among edge nodes for structurally coherent decisions, and (iii)~a two-level proximal policy optimization architecture with priority-aware scheduling and adaptive semantic thresholds tailored to diverse 6G service classes. Comprehensive evaluation on the EdgeSimPy simulator over 1{,}000 orchestration steps against five representative baselines demonstrates that FedSemGNN achieves 39.08~ms orchestration latency ($3.3\times$ faster than flat federation), near-perfect semantic fidelity, and $21\times$ lower communication overhead (0.72~MB). Scalability experiments spanning seven network sizes from 6 to 1{,}000 nodes (a 167$\times$ range) confirm that fidelity is preserved and computation time grows near-linearly. These results position FedSemGNN as a control-plane foundation for privacy-preserving, semantic-aware orchestration in large-scale 6G edge deployments.
+	\end{abstract}
+	
+	
+	\begin{IEEEkeywords}
+		Federated Reinforcement Learning, Semantic Task Orchestration, Graph Neural Networks, Edge Intelligence, Proximal Policy Optimization, 6G Networks
+	\end{IEEEkeywords}
+	
+	
+	\section{Introduction}
+	
+	The imminent arrival of 6G networks promises to enable next-generation edge intelligence with ultra-low latency, high reliability, and context-aware services including extended reality, autonomous systems, and tactile internet applications~\cite{cui2025}. These use cases demand fine-grained orchestration of computing and data services across heterogeneous edge nodes~\cite{shi2023}. Traditional cloud-based approaches cannot meet such requirements due to latency bottlenecks, reinforcing the importance of edge computing to bring processing closer to end users~\cite{vahabi2025}.
+	
+	The dynamic and resource-constrained nature of edge environments combined with energy constraints, privacy requirements, and workload variability introduces substantial orchestration challenges~\cite{yang2023rlcs}. Recent studies have investigated reinforcement learning for adaptive orchestration, allowing real-time learning of placement and migration strategies~\cite{shi2023}. However, centralized RL methods suffer from scalability limitations and cannot preserve user privacy. Furthermore, most RL-based orchestration approaches disregard semantic content in service tasks, leading to suboptimal placements in latency-sensitive or context-dependent scenarios such as extended reality or real-time analytics~\cite{zhang2025semantic}.
+	
+	Federated reinforcement learning provides a promising alternative by distributing policy learning across edge nodes without sharing raw data~\cite{wu2024topology}. While FRL frameworks have shown promise in handling privacy and scalability, they frequently overlook two critical dimensions: semantic task awareness and network topology encoding~\cite{ogenyi2025comprehensive, zhang2024optimizing}. Modern edge workloads often include semantic information such as task intent or content category, which if properly modeled can significantly enhance placement fidelity and decision stability~\cite{zhang2025semantic}. At the same time, orchestration effectiveness depends on network structure, including link quality, proximity, and cluster connectivity. Yet most FRL methods treat edge nodes as unstructured agents without considering topological relationships~\cite{wu2024topology}.
+	
+	Graph neural networks offer an effective means to encode network topology, but their integration into federated, real-time orchestration remains limited~\cite{makris2024gnnrl, zhang2024optimizing}. Moreover, frequent global synchronization in federated learning systems often results in high communication overhead and latency. Hierarchical FL frameworks reduce this burden by performing local aggregation within clusters before periodic global updates~\cite{sad2024fearless, he2022acefl}. However, few approaches combine hierarchical control with semantic embeddings and graph-based topology encoding in a unified orchestration framework~\cite{wu2024topology, vahabi2025}.
+	
+	Existing studies also suffer from limited experimental scope. Many evaluations use synthetic environments with minimal orchestration realism or baseline diversity. Large-scale scenarios are rarely validated beyond small-scale simulations, and systematic scalability analysis using simulation experiments across wide node ranges remains uncommon in the federated edge orchestration literature~\cite{yang2023rlcs, shi2023}.
+	
+	\noindent\textbf{Contributions.} We propose \textbf{FedSemGNN}, a federated reinforcement learning framework designed for semantic-aware, topology-informed, and hierarchical orchestration in 6G edge environments. Beyond the core architecture, we explicitly expose and analyze key hyperparameters (semantic matching threshold and continual-learning regularization) and incorporate task priority for 6G URLLC scenarios. The key contributions of this work include:
+	
+	\begin{itemize}
+		\item \textbf{Semantic task embedding with continual learning:} Service requests are embedded into a compact semantic space (default dimension 16) using a continual learning encoder that extracts features from resource demands, service types, and temporal patterns. The encoder uses elastic weight consolidation (EWC) with regularization $\lambda_{\mathrm{EWC}}$ to suppress catastrophic forgetting while adapting to emerging workload characteristics; we report sensitivity to $\lambda_{\mathrm{EWC}}$.
+		
+		\item \textbf{Graph convolutional network topology encoding:} A two-layer GCN with symmetric normalization captures structural relationships including bandwidth, affinity, and proximity. The architecture processes concatenated resource and semantic node features (21 dimensions: 5 resource + 16 semantic) through 21 to 32 to 16 dimensional transformations with ReLU activation, producing compact 16-dimensional node embeddings that encode network-wide constraints and multi-hop dependencies across mesh-connected edge infrastructure.
+		
+		\item \textbf{Hierarchical federated PPO with dual-level synchronization:} The framework employs two-level aggregation (default $K_1{=}10$, $K_2{=}50$) to reduce communication overhead while maintaining convergence stability. The design supports scalable federated learning without requiring fixed cluster assignments.
+		
+		\item \textbf{Priority-aware orchestration primitives:} We model service priority (emergency vs. ordinary) and incorporate priority-weighted latency in the reward. We additionally enable priority-adaptive semantic thresholds to better satisfy URLLC-like service constraints.
+		
+		\item \textbf{Comprehensive experimental validation:} We implement FedSemGNN in EdgeSimPy~\cite{souza2023edgesimpy}, a high-fidelity edge computing simulator, with detailed instrumentation of control-plane latency, reward trajectories, semantic fidelity, power consumption, communication footprint, and migration dynamics. The base evaluation uses a heterogeneous edge infrastructure with mobile users following realistic mobility patterns over 1,000 orchestration timesteps.
+		
+		\item \textbf{Comprehensive scalability validation:} Scalability from 6 to 1{,}000 nodes (167$\times$ range) is validated through simulation experiments at 7 scale points with dynamically generated topologies representing IoT and enterprise edge scenarios. FedSemGNN maintains ${\sim}$100\% semantic fidelity at all tested scales and near-linear computation time scaling, enabling predictable resource planning. Full experiments are conducted at 6--200 nodes (1{,}000--50 steps), with timing benchmarks at 500 and 1{,}000 nodes. FedSemGNN is compared against five competitive baselines: FlatFedPPO, HierFedPPO, HSQF, RandomPlacement, and CentralizedPPO.
+		
+		\item \textbf{Superior latency, fidelity, and communication efficiency:} FedSemGNN achieves orchestration latency of 39.08~ms per decision ($3.3\times$ faster than FlatFedPPO), $\sim$100\% semantic fidelity, and communication overhead of only 0.72~MB over 1{,}000 steps ($21\times$ lower than FlatFedPPO and $290\times$ lower than HierFedPPO), with competitive power consumption (2{,}674~W).
+	\end{itemize}
+	
+	Unlike previous methods that treat semantics or topology heuristically, FedSemGNN unifies both within a scalable federated RL framework with mathematically grounded reward optimization. The reward function jointly minimizes power consumption and latency while encouraging semantic fidelity through state representation design. By embedding semantic structure into the learning process and encoding topological constraints through graph neural networks, FedSemGNN supports responsive orchestration with low latency and minimal communication cost. The system demonstrates real-time operation at 39.08~ms per decision (3.3$\times$ faster than flat federation), offering a viable foundation for control-plane design in 6G edge computing.
+	
+	\noindent\textbf{Paper organization.} The remainder of this paper is structured as follows: Section~\ref{sec:related} reviews related work in federated reinforcement learning, semantic scheduling, and graph neural network based orchestration. Section~\ref{sec:system_architecture} presents the FedSemGNN system architecture including semantic embedding, GNN topology encoding, and hierarchical PPO coordination. Section~\ref{sec:methodology} details the proposed methodology with mathematical formulations for reward optimization, policy learning, and federated aggregation. Section~\ref{sec:evaluation} discusses empirical evaluations across baseline comparisons and scalability analysis. Section~\ref{sec:conclusion} concludes the paper, and Section~\ref{sec:limitations_future} outlines limitations and future research directions.
+	
+	
+	\section{Related Work}
+	\label{sec:related}
+	
+	\subsection{Federated Reinforcement Learning for Edge Orchestration}
+	
+	Federated reinforcement learning (FRL) has emerged as a robust approach for edge orchestration under privacy constraints. Unlike centralized RL, FRL enables distributed agents to train local policies without exposing raw data, which is critical for 6G-enabled services~\cite{kianpisheh2024,huang2022collaborative}. Recent studies explore FRL in hybrid cloud-edge environments~\cite{wang2021,consul2024hybrid} and under hierarchical model training setups~\cite{he2022acefl}, with applications including anomaly detection, task offloading, and digital twin optimization~\cite{lu2020low,prathiba2022}. Despite growing interest, most current methods still rely on abstract or flat feature vectors and struggle to encode spatial or semantic structure, limiting coordination under dynamic network topologies~\cite{yan2023v2v,sad2024fearless}.
+	
+	\subsection{Semantic-Aware Scheduling and Service Placement}
+	
+	Semantic embeddings offer robust generalization across orchestration tasks by encoding high-level intent and contextual similarity. Early works have applied semantic modeling in edge caching and service personalization~\cite{prathiba2022,tam2025graph}. Semantic compression has also been explored for communication-aware model training~\cite{wang2021}, but integration into reinforcement learning pipelines for distributed scheduling remains sparse. Recent advances suggest that semantic representations can reduce service migrations and enhance policy transfer across domains~\cite{zhang2025semantic,li2021network}. Our framework builds on this insight by coupling semantic representations with federated PPO for personalized orchestration policies.
+	
+	\subsection{GNN-Based Topology Encoding for Edge Intelligence}
+	
+	Graph neural networks (GNNs) are increasingly used to capture spatial relationships in wireless and edge environments. They support topology-aware orchestration by encoding node states, link quality, and global dependencies~\cite{zhang2024optimizing,jere2023distributed}. GNN-RL combinations have shown promise in multi-hop offloading, edge caching, and vehicular scheduling~\cite{makris2024gnnrl,hao2021urllc}, though few operate under federated constraints. Additionally, federated orchestration often lacks topology adaptation, limiting robustness under dynamic infrastructure changes. Our work integrates GNN-based topology modeling into a federated PPO loop, enabling communication-efficient and topology-consistent policy learning.
+	
+	
+	\subsection{Hierarchical Federated Learning for Communication Efficiency}
+	
+	Hierarchical federated learning (HFL) reduces synchronization overhead by grouping clients into subregions that perform local model updates before periodic global aggregation. This model is especially suited for edge and IoT systems, where communication cost and energy efficiency are paramount and where clients exhibit heterogeneous energy, compute, and mobility characteristics~\cite{tan2023selfadaptive,huang2022workercentric}. While HFL has shown promise in supervised learning, its use in reinforcement learning for real-time orchestration remains limited~\cite{tam2025graph}. Existing methods often neglect dynamic service behaviors or lack mechanisms for topology-informed coordination. In our work, we extend HFL principles to federated PPO and apply it in a two-tier control structure with local synchronization every 10 epochs and global synchronization every 50 epochs. This results in significant communication savings, reducing total communication volume to 0.72~MB over 1{,}000 orchestration steps compared to 15.02~MB for flat federated PPO, representing a 21$\times$ reduction in communication overhead.
+	
+	
+	\subsection{Deep RL-Based Edge Offloading and Resource Allocation}
+	
+	Recent work on deep reinforcement learning for edge computing has demonstrated significant advances in task offloading and resource allocation. ECO-SDIoT~\cite{zhu2023eco} employs Double DQN with software-defined networking for global-view optimization, achieving 20--60 ms task offloading latency in IoT environments. While effective for batch-oriented offloading, ECO-SDIoT lacks semantic awareness and operates without federated privacy guarantees. GFL-LFF~\cite{regan2024gfl} combines GNN with federated learning for privacy-preserving data aggregation in Industrial IoT, reporting 1.6 s latency for secure data sharing. Although GFL-LFF demonstrates the benefits of GNN integration with federated approaches, it focuses on data aggregation rather than real-time orchestration. FRPVC~\cite{qian2025frpvc} applies federated deep reinforcement learning with DDQN for cost-efficient video caching in energy-constrained mobile edge networks, optimizing cache hit rates through denoised autoencoders and MDP-based resource allocation.
+	
+	While these methods demonstrate effective deep RL optimization for specific edge applications, they address narrow use cases (offloading, data aggregation, caching) without generalizing to semantic-aware task placement. Moreover, value-based methods (Double DQN, DDQN) can suffer from instability in high-dimensional action spaces compared to policy gradient approaches. FedSemGNN advances beyond these works by: (1) incorporating explicit semantic embeddings for application-aware orchestration, (2) employing hierarchical PPO for more stable policy learning than value-based methods, (3) using GNN topology encoding for efficient network representation, and (4) achieving 39.08~ms orchestration latency with $\sim$100\% semantic fidelity and $21\times$ lower communication overhead than flat federation, while maintaining federated privacy guarantees.
+	
+	\noindent\textbf{Centralized RL and MARL context.} To contextualize our federated approach against mainstream centralized RL (e.g., SAC, TD3) and MARL scheduling: SAC~\cite{haarnoja2018sac} and TD3~\cite{fujimoto2018td3} are widely used for continuous-control problems, while MAPPO~\cite{yu2021mappo} is a strong multi-agent PPO variant. Our orchestration action is a large, combinatorial placement decision over heterogeneous edge servers, and our primary focus is privacy-preserving, topology-aware federation under strict control-plane latency. We therefore include a centralized PPO baseline as a directly comparable centralized policy-gradient control baseline (same observation construction and decision latency accounting) and discuss extensions to additional centralized RL and MARL baselines as future work.
+	
+	\noindent\textbf{Additional 6G-related works.} Beyond edge orchestration papers, 6G networking increasingly relies on intelligent optimization at the physical and network layers. For example, ANNS~\cite{chen2025anns} proposes an intelligent non-convex optimization scheme for IRS-aided next-generation mobile networks, highlighting the broader trend of learning-assisted optimization that motivates cross-layer intelligent orchestration.
+	
+	
+	\subsection{Positioning of Our Work}
+	
+	To the best of our knowledge, no existing system jointly integrates semantic embeddings, GNN-based topology encoding, and hierarchical federated reinforcement learning within a unified orchestration framework. Our proposed \textbf{FedSemGNN} is the first to combine these dimensions in a federated setting, implemented on the EdgeSimPy simulator~\cite{souza2023edgesimpy}. The system supports detailed instrumentation across reward, latency, communication, power, and fidelity metrics. Evaluated over 1,000 orchestration steps on a heterogeneous edge infrastructure with scalability validated across 7 scale points from 6 to 1{,}000 nodes (167$\times$ range) through simulation experiments, FedSemGNN demonstrates substantial improvements compared to both self-implemented baselines (FlatFedPPO, HierFedPPO, HSQF, RandomPlacement, CentralizedPPO) and state-of-the-art published methods (ECO-SDIoT, GFL-LFF, FRPVC). Key simulation results include orchestration latency of 39.08~ms at the 6-node base scale ($3.3\times$ faster than FlatFedPPO), $\sim$100\% semantic fidelity (vs.\ 71.9\% for FlatFedPPO and 72.5\% for CentralizedPPO), communication overhead of only 0.72~MB ($21\times$ lower than FlatFedPPO, $290\times$ lower than HierFedPPO), and competitive power consumption (2{,}674~W). Scalability is validated through full 1{,}000-step simulation experiments at 6 and 200 nodes, with timing benchmarks up to 1{,}000 nodes confirming near-linear computation time scaling. These findings highlight the strong scalability and architectural potential of semantic and topological modeling in federated edge orchestration.
+	
+	
+	\section{System Architecture}
+	\label{sec:system_architecture}
+	
+	FedSemGNN enables scalable, low-latency, and privacy-preserving orchestration for 6G edge networks by integrating three core components:
+	
+	\begin{enumerate}
+		\item \textbf{Semantic-Aware Task Representation}: Custom continual learning encoder extracts compact semantic embeddings from service characteristics to enable intent-aware orchestration~\cite{yan2023v2v, prathiba2022, li2021network},
+		\item \textbf{GNN-Based Topology Encoding}: Graph convolutional network captures spatial dependencies and inter-node relationships across the edge infrastructure~\cite{makris2024gnnrl, tam2025graph}, and
+		\item \textbf{Hierarchical Federated PPO}: Two-level synchronization coordinates distributed policy learning while preserving privacy and minimizing communication overhead~\cite{sad2024fearless, kianpisheh2024, yan2023v2v}.
+	\end{enumerate}
+	
+	The architecture (Figure~\ref{fig:system_framework}) follows a hierarchical federated learning paradigm where multiple edge clusters operate semi-autonomously while maintaining global coordination through periodic aggregation. Each cluster contains resource monitors, edge nodes with local orchestrators, and graph-based topology encoders. User devices equipped with semantic encoders generate service requests that are processed through the orchestration pipeline.
+	
+	Local orchestrators make placement decisions using policies learned through proximal policy optimization, leveraging both semantic compatibility and topological context. The two-level synchronization structure---intra-cluster coordination and global aggregation---balances responsiveness with communication efficiency, enabling the system to scale to large simulated edge infrastructures while maintaining orchestration quality.
+	
+	\begin{figure*}[htbp]
+		\centering
+		\includegraphics[width=1.0\textwidth]{architecture.png}
+		\caption{Complete FedSemGNN system architecture showing hierarchical federated learning with semantic embeddings, GNN topology encoding, and two-level synchronization. User devices with semantic encoder feed multiple edge clusters (Cluster 1, Cluster 2), each containing resource monitors, edge nodes, GCN encoders, and local PPO agents. Intra-cluster sync occurs every $K_1=10$ epochs, while global DP aggregation and policy distribution occur every $K_2=50$ epochs.}
+		\label{fig:system_framework}
+	\end{figure*}
+	
+	\subsection{Semantic-Aware Task Representation}
+	\label{subsec:semantic_representation}
+	
+	Service requests entering the FedSemGNN system are transformed into compact semantic embeddings that capture task intent and requirements. The semantic encoder processes heterogeneous service characteristics including resource demands (CPU, memory, network bandwidth), functional service types (web services, data analytics, real-time processing), temporal patterns (time-of-day preferences, periodic workloads), and quality-of-service requirements (latency sensitivity, throughput constraints).
+	
+	The encoder employs continual learning mechanisms to adapt to evolving service landscapes without forgetting previously learned patterns~\cite{yan2023v2v, prathiba2022}. When new service types emerge, the system preserves knowledge of existing services while incorporating novel patterns through regularization and experience replay. This adaptive capability is essential for dynamic edge environments where application requirements continuously evolve.
+	
+	Each edge node maintains a semantic capability profile that reflects its functional specialization and historical workload patterns. Semantic matching identifies compatible task-server pairs, enabling the system to maintain high placement fidelity by aligning service requirements with node capabilities~\cite{li2021network, jere2023distributed}. Tasks are considered semantically compatible with nodes when their embedding similarity exceeds a predefined threshold, ensuring quality-of-service consistency.
+	
+	Figure~\ref{fig:semantic_pipeline} illustrates the complete semantic processing pipeline from service arrival to placement decision. The pipeline begins with service/task input and graph/context features, which are processed by the semantic encoder to generate initial embeddings. These embeddings are then refined by the GNN encoder to incorporate topological context, followed by a projection head that produces the final 16-dimensional semantic vector $\mathbf{z}$. The semantic vector undergoes similarity search against server capability profiles to identify compatible placement candidates, culminating in the final placement decision that selects both the target cluster and specific edge node. A critical feedback loop (shown in purple dotted line) enables semantic adaptation: performance signals and policy outcomes are fed back to the semantic encoder, allowing the system to continuously refine its embedding space based on actual orchestration results. This adaptive mechanism is key to FedSemGNN's ability to maintain perfect semantic fidelity while adapting to evolving workload patterns.
+	
+	\begin{figure*}[htbp]
+		\centering
+		\includegraphics[width=0.95\textwidth]{semantic_pipeline.png}
+		\caption{Semantic embedding pipeline showing the flow from service requests through the custom continual learning encoder ($128 \rightarrow 64 \rightarrow 64 \rightarrow 16$), GNN encoding, projection head, semantic vector generation, similarity-based matching, and final placement decision. The feedback loop (purple dotted line) enables continuous semantic adaptation based on orchestration performance.}
+		\label{fig:semantic_pipeline}
+	\end{figure*}
+	
+	\subsection{Topology Encoding with Graph Neural Networks}
+	\label{subsec:topology_encoding}
+	
+	The edge computing infrastructure is modeled as a graph where nodes represent compute servers and edges capture communication links~\cite{makris2024gnnrl, tam2025graph} with associated costs (latency, bandwidth, reliability). This graph representation enables the system to reason about spatial relationships, network proximity, and resource distribution across the infrastructure.
+	
+	Graph neural networks process this topological structure through iterative neighborhood aggregation, where each node accumulates information from its local neighborhood to build progressively richer representations~\cite{makris2024gnnrl, huang2022collaborative}. Initial node features include semantic affinity scores, current resource availability (CPU, memory, bandwidth), and historical usage patterns. Through multiple aggregation layers, nodes develop embeddings that encode both their local state and broader network context from multi-hop neighborhoods.
+	
+	The topology-aware embeddings enable spatially coherent orchestration decisions. By accounting for network proximity and communication costs, the system can place related services near each other and avoid bottleneck links. This spatial awareness is critical for reducing service migrations and maintaining stable placements even as workloads shift across the infrastructure.
+	
+	\subsection{Hierarchical Federated Proximal Policy Optimization}
+	\label{subsec:hierarchical_ppo}
+	
+	The orchestration framework employs hierarchical federated learning to coordinate distributed policy learning across edge clusters. Each local orchestrator maintains its own policy for placement decisions, learning from local experiences while periodically synchronizing with neighboring orchestrators and the global coordinator.
+	
+	The hierarchical structure operates at two levels: intra-cluster coordination maintains coherence among orchestrators within the same edge cluster, while global aggregation ensures consistency across all clusters. This two-level design reduces communication overhead compared to flat federated architectures where all agents must synchronize with a central server for every update~\cite{sad2024fearless, yan2023v2v}. Local coordination enables rapid adaptation to cluster-specific workload patterns, while global aggregation prevents policy divergence and ensures system-wide optimization.
+	
+	Privacy preservation is achieved through secure aggregation protocols where only model parameters (not raw data or trajectories) are transmitted during synchronization. Differential privacy mechanisms add calibrated noise during aggregation to provide formal privacy guarantees. Gradient clipping prevents any single agent from dominating the aggregated policy, ensuring fairness and stability~\cite{mao2024optimizing, li2021network}.
+	
+	The policy learning algorithm employs proximal policy optimization, which constrains policy updates to prevent destructively large changes that could destabilize training~\cite{singh2024drl, kianpisheh2024}. Each orchestrator maintains an actor-critic architecture: the actor network selects placement actions based on current state observations, while the critic network estimates state values to guide policy improvement. The compact neural architecture enables low-latency decision-making suitable for real-time orchestration requirements.
+	
+	\subsection{Workflow Summary}
+	\label{subsec:workflow}
+	
+	Figure~\ref{fig:workflow} presents the complete end-to-end orchestration workflow showing how system components interact during service placement. The workflow begins when a service request arrives at the system and proceeds through semantic encoding, topology-aware state fusion, graph neural network processing, and policy-based decision-making. After service placement, the system evaluates placement quality through reward computation, updates the local policy, and periodically synchronizes with other orchestrators.
+	
+	Two critical feedback mechanisms enable continuous system improvement. The global policy broadcast ensures all local orchestrators remain coordinated by distributing aggregated parameters from the central coordinator. The semantic adaptation feedback allows the embedding encoder to refine its representations based on actual orchestration outcomes, creating a closed-loop learning system that continuously improves semantic fidelity.
+	
+	Synchronization decisions occur at strategic intervals to balance responsiveness with communication efficiency. Intra-cluster synchronization maintains local coherence, while global aggregation ensures system-wide consistency without requiring constant communication. This adaptive synchronization strategy allows the simulated system to scale to large network sizes while maintaining orchestration quality~\cite{souza2023edgesimpy}.
+	
+	\begin{figure}[!t]
+		\centering
+		\includegraphics[width=0.50\textwidth]{workflowdiagram.png}
+		\caption{Complete FedSemGNN orchestration workflow showing the decision cycle: (0) Service Arrival $\rightarrow$ (1) Semantic Encoding $\rightarrow$ (2) GNN Encoding $\rightarrow$ (3) Cluster Selection $\rightarrow$ (4) Placement $\rightarrow$ (5) Reward Computation $\rightarrow$ (6) Local PPO Update $\rightarrow$ (7) Sync Decision $\rightarrow$ (7a-7b) Hierarchical Aggregation $\rightarrow$ (8) Policy Broadcast. Purple lines show critical feedback: solid for global policy broadcast to local agents, dotted for semantic adaptation feedback to encoder.}
+		\label{fig:workflow}
+	\end{figure}
+	
+	\subsection{Design Rationale and System Characteristics}
+	\label{subsec:design_rationale}
+	
+	The FedSemGNN architecture is designed to address three fundamental challenges in 6G edge orchestration: semantic heterogeneity of service requests, dynamic network topology, and distributed coordination at scale.
+	
+	\textbf{Semantic Awareness:} Traditional resource-based orchestration treats all services homogeneously, considering only CPU, memory, and bandwidth requirements. FedSemGNN's semantic layer enables intent-aware placement by matching service characteristics with node capabilities, improving quality-of-service consistency and reducing placement violations~\cite{regan2024gfl, zhu2023eco}.
+	
+	\textbf{Topology Encoding:} Graph neural networks provide a principled approach to encode network structure, enabling the system to reason about spatial relationships and communication costs. This topological awareness reduces unnecessary service migrations by accounting for network proximity when making placement decisions.
+	
+	\textbf{Hierarchical Federation:} The two-level synchronization structure addresses the scalability-consistency tradeoff inherent in distributed learning. Frequent local coordination maintains cluster coherence, while periodic global aggregation ensures system-wide optimization without excessive communication overhead.
+	
+	\textbf{Compact Architecture:} The neural components employ small network architectures (16-64 hidden units) to enable low-latency decision-making. This design choice prioritizes inference speed over model capacity, recognizing that orchestration decisions must be made in real-time as service requests arrive.
+	
+	\textbf{Privacy Preservation:} Secure aggregation and differential privacy mechanisms ensure that no agent can infer information about other agents' local workloads or placement decisions. This privacy guarantee would be essential for multi-tenant edge infrastructures where competing service providers share infrastructure.
+	
+	The combination of these design choices enables FedSemGNN to deliver scalable, low-latency orchestration while maintaining semantic fidelity, privacy, and energy efficiency. The architecture is modular, allowing individual components to be upgraded or replaced without redesigning the entire system.
+	
+	\subsection{Compatibility with Existing 6G Edge Platforms}
+	FedSemGNN is designed as a control-plane decision module that consumes telemetry (resource utilization, link statistics, mobility context, and service descriptors) and outputs placement/migration actions. This interface aligns with common 6G edge stacks where monitoring and actuation are separated: telemetry can be collected from SDN controllers and edge orchestrators, while placements can be enacted by container orchestrators (e.g., Kubernetes) or MEC platforms. In deployment, the semantic encoder and policy inference can run in a lightweight controller pod; federated aggregation can be implemented as a periodic background job across sites (clusters) to respect privacy and bandwidth constraints.
+	
+	
+	\section{Proposed Methodology}
+	\label{sec:methodology}
+	
+	\subsection{System Model}
+	We consider an edge computing network composed of $N$ heterogeneous edge servers interconnected by communication links with varying latency and bandwidth. Each server $v \in V$ is defined by a dynamic state vector $\mathbf{x}_v(t)$ that includes:
+	\begin{itemize}
+		\item CPU utilization and available processing capacity,
+		\item Memory availability and active allocation,
+		\item Uplink and downlink bandwidth,
+		\item Historical workload statistics,
+		\item Semantic service affinity scores.
+	\end{itemize}
+	
+	The edge fabric is modeled as a weighted graph $G = (V, E)$ where edge weights encode communication costs (latency and bandwidth). To improve scalability and reduce synchronization overhead, the network employs hierarchical federated learning with two-level aggregation. Local orchestrators perform task placement before participating in periodic global policy aggregation, adapting dynamically to network topology and workload patterns~\cite{zhou2024qos, yurdem2024federated, zhou2024robustfl}.
+	
+	\subsection{Semantic Embedding}
+	For each incoming task $i$, service characteristics are embedded into a compact semantic space with dimension $d_s$ (default $d_s=16$) using a continual learning encoder:
+	\begin{equation}
+		\mathbf{s}_i = f_{\text{embed}}(\text{task}_i) \in \mathbb{R}^{d_s},
+	\end{equation}
+	where $f_{\text{embed}}(\cdot)$ processes service features including resource demands, service type indicators, temporal features, and workload characteristics (including priority and latency sensitivity). The encoder employs elastic weight consolidation (EWC) with regularization parameter $\lambda_{\text{EWC}}$ (default $0.4$) to prevent catastrophic forgetting when adapting to new service types. These values are not fixed constants: we expose them as hyperparameters and report sensitivity analysis.
+	
+	Each edge node $v$ maintains a semantic profile vector $\mathbf{p}_v \in \mathbb{R}^{16}$ that reflects its service capabilities and historical workload characteristics. Semantic affinity between task $i$ and node $v$ is computed using cosine similarity:
+	\begin{equation}
+		\text{sim}(i,v) = \frac{\mathbf{s}_i \cdot \mathbf{p}_v}{\|\mathbf{s}_i\|_2 \|\mathbf{p}_v\|_2},
+	\end{equation}
+	where the dot product $\mathbf{s}_i \cdot \mathbf{p}_v$ measures alignment between task and node capabilities, normalized by their Euclidean norms to produce values in $[-1, 1]$. Values close to 1 indicate strong semantic match, while values near 0 suggest orthogonal service types. The semantic score is fused with numerical resource metrics to form a unified state representation supporting intent-aware orchestration~\cite{grasso2022hhome}.
+	
+	\subsubsection{Semantic similarity threshold and adaptation}
+	To decide whether a placement satisfies semantic requirements, we use a similarity threshold $\tau$ such that a task--server pair is considered semantically compatible if $\mathrm{sim}(i,v)\ge\tau$. In this work, $\tau$ is treated as a tunable system knob (default $0.3$) rather than an arbitrary constant. We report sensitivity to $\tau$ and use it to trade off strict semantic matching (higher $\tau$) versus feasibility and flexibility (lower $\tau$).
+	
+	To reflect heterogeneous 6G services, we additionally support priority-adaptive thresholds. Each service is assigned a priority $p_i\in[0,1]$ (ordinary to emergency/URLLC). We adjust the effective threshold as
+	\begin{equation}
+	\tau_i = \mathrm{clip}(\tau_0 + \kappa\,(p_i-0.5),\,0.05,\,0.95),
+	\end{equation}
+	where $\tau_0$ is the base threshold and $\kappa$ controls the slope. This biases urgent services toward stricter semantic matching when desired.
+
+	\subsubsection{Continual learning regularization ($\lambda_{\mathrm{EWC}}$)}
+	EWC regularization controls the stability--plasticity tradeoff of the semantic encoder. Larger $\lambda_{\mathrm{EWC}}$ better preserves prior knowledge but can slow adaptation; smaller values adapt quickly but risk forgetting. We therefore expose $\lambda_{\mathrm{EWC}}$ and quantify its impact through parameter sensitivity experiments.
+	
+	\subsection{Topology Encoding with Graph Convolutional Networks}
+	To capture spatial dependencies and inter-node relationships among edge servers, the network is represented as a graph $G = (V, E)$. Each node $v \in V$ has an initial feature vector $\mathbf{h}_v^{(0)} \in \mathbb{R}^{21}$ formed by concatenating resource availability metrics (CPU, memory, disk, power, service count) and the 16-dimensional semantic embedding produced by the online encoder.
+	
+	A two-layer Graph Convolutional Network (GCN) performs message passing across the network topology~\cite{wang2024deepgrl}:
+	\begin{equation}
+		\mathbf{h}_v^{(l+1)} = \sigma\!\left(\sum_{u \in \mathcal{N}(v) \cup \{v\}} \frac{1}{\sqrt{\tilde{d}_u \tilde{d}_v}} \mathbf{W}^{(l)} \mathbf{h}_u^{(l)}\right),
+	\end{equation}
+	where $\mathcal{N}(v)$ is the neighbor set of node $v$, $\tilde{d}_v = d_v + 1$ is the augmented degree accounting for self-loops, $\mathbf{W}^{(l)} \in \mathbb{R}^{d_l \times d_{l+1}}$ is a learnable weight matrix at layer $l$ (Layer 1: $21 \times 32$, Layer 2: $32 \times 16$), and $\sigma(\cdot) = \text{ReLU}(\cdot)$ is the activation function. The symmetric normalization $1/\sqrt{\tilde{d}_u \tilde{d}_v}$ prevents high-degree nodes from dominating the aggregation, while the self-loop term ensures each node retains its own state information. The final node embedding $\mathbf{h}_v^{(2)} \in \mathbb{R}^{16}$ encodes both local resource states and multi-hop structural context from neighboring servers, guiding orchestration decisions while reducing unnecessary service migrations~\cite{moreira2024vne}.
+	
+	
+	\subsection{Hierarchical Federated Proximal Policy Optimization}
+	Each local agent learns an orchestration policy using Proximal Policy Optimization (PPO)~\cite{robles2023multilayer} with a stochastic policy $\pi_{\theta}(a|s)$ that maps states (comprising GNN embeddings and resource metrics) to placement actions. The policy is optimized using the clipped surrogate objective:
+	\begin{equation}
+		L^{\text{CLIP}}(\theta) = \mathbb{E}_t\!\left[\min\!\big(r_t(\theta)\hat{A}_t, \ \text{clip}(r_t(\theta), 1-\epsilon, 1+\epsilon)\hat{A}_t\big)\right],
+	\end{equation}
+	where $r_t(\theta) = \pi_\theta(a_t|s_t)/\pi_{\theta_{\text{old}}}(a_t|s_t)$ is the importance sampling ratio, $\hat{A}_t$ is the advantage estimate, and $\epsilon = 0.2$ is the clipping parameter. The clipped objective constrains $r_t(\theta)$ to $[1-\epsilon, 1+\epsilon]$, preventing destabilizing policy changes while encouraging beneficial updates.
+	
+	The advantage function is computed using temporal difference (TD) estimation:
+	\begin{equation}
+		\hat{A}_t = R_t + \gamma V(s_{t+1}) - V(s_t),
+	\end{equation}
+	where $V(s_t)$ is the critic's state value estimate, $R_t$ is the immediate reward, and $\gamma = 0.99$ is the discount factor. This measures how much better the actual return was compared to the expected return, providing stable learning signals.
+	
+	After every $K_1 = 10$ local training epochs, policy parameters are synchronized locally. After every $K_2 = 50$ epochs, all local policies are aggregated at the global coordinator:
+	\begin{equation}
+		\theta_{\text{global}} = \frac{\sum_{k} n_k \theta_k}{\sum_{k} n_k},
+	\end{equation}
+	where $n_k$ denotes the number of training trajectories collected from agent $k$. This weighted aggregation promotes robust convergence while minimizing bandwidth overhead, aligning with current federated edge learning systems~\cite{zhou2024robustfl, yurdem2024federated}. This hierarchical federated learning structure balances training stability with communication efficiency, enabling FedSemGNN to achieve low orchestration latency while maintaining high reward and semantic fidelity.
+	
+	\subsection{Reward Function}
+	The reward signal at timestep $t$ is designed to jointly optimize energy efficiency and response latency. To reflect priority heterogeneity in 6G services, we use priority-weighted service latency (emergency tasks contribute more):
+	\begin{equation}
+	L_t^{(w)} = \frac{\sum_i w(p_i)\,\ell_i(t)}{\sum_i w(p_i)},\quad w(p)=p, 
+	\end{equation}
+	where $\ell_i(t)$ is the observed service latency and $p_i$ is the service priority.
+	\begin{equation}
+		R_t^{\text{base}} = \max\!\left(0, R_{\text{base}} - \left(P_t + w_l \cdot L_t^{(w)}\right)\right),
+		\label{eq:base_reward}
+	\end{equation}
+	where $R_{\text{base}} = 10{,}000$ is the maximum reward scale, $P_t$ (W) is the aggregate power consumption, and $w_l = 0.01$ is the latency penalty weight. Lower power and priority-weighted latency yield higher rewards, directly incentivizing preferential treatment of emergency tasks.
+	
+	To reduce training instability caused by high-variance reward signals, we apply exponential moving average (EMA) smoothing:
+	\begin{equation}
+		R_t = \alpha_{\text{smooth}} \cdot R_t^{\text{base}} + (1 - \alpha_{\text{smooth}}) \cdot R_{t-1},
+		\label{eq:smoothed_reward}
+	\end{equation}
+	where $\alpha_{\text{smooth}} = 0.2$ controls the smoothing strength (Equation~\ref{eq:smoothed_reward}). This dampens sudden reward fluctuations, providing more stable learning signals for policy gradient updates. Additionally, semantic fidelity is implicitly encouraged through the state representation: tasks with high semantic similarity to their assigned servers naturally achieve lower latency and better resource utilization, translating to higher rewards without requiring explicit fidelity terms~\cite{ji2024resource}.
+	
+	\subsection{Training and Synchronization Protocol}
+	
+	The training protocol follows a federated reinforcement learning paradigm adapted to edge computing~\cite{grasso2022hhome, zhou2024qos}. It balances privacy, efficiency, and semantic awareness using continual learning and elastic consolidation~\cite{zhou2024robustfl}. Training proceeds in synchronous federated rounds, each consisting of $T = 1{,}000$ environment steps. Algorithm~\ref{alg:fedsemgnn_training} presents the complete training procedure for FedSemGNN, detailing the hierarchical federated learning protocol with semantic-aware orchestration.
+	
+	\begin{algorithm}[t]
+		\caption{FedSemGNN Training Protocol}
+		\label{alg:fedsemgnn_training}
+		\begin{algorithmic}[1]
+			\REQUIRE Edge network $G=(V,E)$, agents $K$, rounds $R$
+			\ENSURE Trained global policy $\theta_{\text{global}}$
+			\STATE Initialize encoder $f_{\text{embed}}$, GCN $\{\mathbf{W}^{(l)}\}$, policies $\{\theta_k\}$
+			\FOR{round $r = 1$ to $R$}
+			\FOR{each agent $k$ \textbf{in parallel}}
+			\FOR{timestep $t = 1$ to $T$}
+			\STATE Compute $\mathbf{s}_i = f_{\text{embed}}(\text{task}_i)$, $\mathbf{h}_v^{(2)}$ via GCN
+			\STATE Select action $a_t \sim \pi_{\theta_k}(a|s_t)$, observe $R_t$
+			\STATE Store $(s_t, a_t, R_t, s_{t+1})$ in buffer $\mathcal{D}_k$
+			\ENDFOR
+			\STATE Update $\theta_k$ using PPO with mini-batches from $\mathcal{D}_k$
+			\ENDFOR
+			\STATE
+			\IF{$r \bmod 10 = 0$}
+			\STATE Aggregate within clusters: $\theta_c = \frac{\sum_{k \in c} n_k \theta_k}{\sum_{k \in c} n_k}$
+			\ENDIF
+			\STATE
+			\IF{$r \bmod 50 = 0$}
+			\STATE Global aggregation: $\theta_{\text{global}} = \frac{\sum_k n_k \theta_k}{\sum_k n_k}$
+			\STATE Broadcast $\theta_{\text{global}}$ to all agents
+			\ENDIF
+			\ENDFOR
+			\STATE
+			\RETURN $\theta_{\text{global}}$
+		\end{algorithmic}
+	\end{algorithm}
+	
+	The training protocol consists of four phases executed in each federated round. During trajectory collection, agents execute their policies in parallel and store experiences in local replay buffers. Local policy optimization uses mini-batch PPO updates with gradient clipping for stability. Hierarchical aggregation occurs at two frequencies: intra-cluster synchronization every $K_1=10$ epochs maintains local coherence, while global synchronization every $K_2=50$ epochs ensures system-wide consistency with differential privacy. Semantic encoder adaptation triggers when novel service types are detected, using elastic weight consolidation to prevent catastrophic forgetting.
+	
+	Algorithm~\ref{alg:orchestration_inference} describes the real-time orchestration procedure executed during service placement, highlighting how semantic awareness and GNN topology encoding guide decision-making.
+	
+	\begin{algorithm}[t]
+		\caption{FedSemGNN Orchestration (Inference)}
+		\label{alg:orchestration_inference}
+		\begin{algorithmic}[1]
+			\REQUIRE Service request $\text{task}_i$, network $G=(V,E)$, policy $\theta$
+			\ENSURE Selected server $v^*$
+			\STATE Compute semantic embedding $\mathbf{s}_i = f_{\text{embed}}(\text{task}_i)$
+			\STATE Initialize $\mathcal{V}_{\text{candidate}} = \emptyset$
+			\FOR{each server $v \in V$}
+			\STATE Compute affinity $\text{sim}(i,v) = \frac{\mathbf{s}_i \cdot \mathbf{p}_v}{\|\mathbf{s}_i\| \|\mathbf{p}_v\|}$
+			\IF{$\text{sim}(i,v) \geq 0.3$ and resources available}
+			\STATE Add $v$ to $\mathcal{V}_{\text{candidate}}$
+			\ENDIF
+			\ENDFOR
+			\STATE
+			\STATE Compute GNN embeddings $\mathbf{H}^{(2)}$ for all nodes via two-layer GCN
+			\FOR{each $v \in \mathcal{V}_{\text{candidate}}$}
+			\STATE Construct state $s_v = [\mathbf{h}_v^{(2)}, \text{sim}(i,v), \text{metrics}]$
+			\STATE Compute probability $p_v = \pi_\theta(a=v | s_v)$
+			\ENDFOR
+			\STATE
+			\STATE Select $v^* = \arg\max_v p_v$
+			\STATE Deploy $\text{task}_i$ on $v^*$
+			\RETURN $v^*$
+		\end{algorithmic}
+	\end{algorithm}
+	
+	The orchestration procedure ensures every placement decision integrates semantic awareness, topological context, and learned policies. Semantic filtering (Steps 1-2) eliminates incompatible servers early, reducing the decision space. GNN encoding (Step 3) incorporates multi-hop network context to account for communication costs and spatial relationships. Policy-based selection (Step 4) uses the learned PPO policy to choose among semantically compatible candidates, balancing exploration (stochastic sampling during training) and exploitation (deterministic selection during inference).
+	
+	This protocol enables FedSemGNN to maintain low orchestration latency (39.08~ms per step), achieving $3.3\times$ faster operation than FlatFedPPO (127.75~ms) and $2.1\times$ faster than HierFedPPO (82.05~ms).
+	
+	\subsection{Implementation Details}
+	FedSemGNN is implemented using PyTorch 2.0 and PyTorch Geometric 2.3 for GCN modules. The PPO agent employs a two-layer fully connected actor-critic architecture with $h_{\text{actor}} = h_{\text{critic}} = 16$ hidden units per layer, ReLU activations, and dropout rate $p_{\text{drop}} = 0.5$ for regularization. The GCN encoder uses two graph convolutional layers ($L = 2$) with $d_h = 32$ dimensional hidden embeddings and $d_{\text{out}} = 16$ dimensional output, operating on 21-dimensional input features (5 resource $+$ 16 semantic).
+	
+	Semantic embeddings are generated using a custom continual learning encoder with neural architecture $128 \rightarrow 64 \rightarrow 64 \rightarrow 16$, which produces 16-dimensional semantic representations by extracting features from service characteristics (CPU/memory/network demands, service types, temporal patterns). Online semantic learning with elastic weight consolidation ($\lambda_{\text{ewc}} = 0.4$) enables real-time adaptation to evolving service requirements at learning rate $\alpha_{\text{online}} = 0.0001$.
+	
+	All experiments are conducted using EdgeSimPy~\cite{souza2023edgesimpy}, a realistic edge computing simulator with detailed network topology modeling and physical-layer constraints. The base simulation environment comprises a heterogeneous edge infrastructure with varying computational capacities (4 to 16 CPU cores, 8 to 32 GB RAM), mobile users with dynamic mobility patterns following random waypoint models, and heterogeneous service requests representing diverse QoS requirements (latency-sensitive, compute-intensive, bandwidth-heavy). The network topology follows a mesh connectivity pattern generated using NetworkX.
+	
+	The simulation executes for 1,000 timesteps with tick duration $\Delta t = 1$ second. Each configuration is evaluated across 5 independent trials with different random seeds, and all reported quantitative results (tables, text) represent mean values with standard deviation to ensure statistical significance. Time-series figures display a representative trial to illustrate temporal dynamics; corresponding mean$\pm$std values are reported in tables. FedSemGNN is compared against five competitive baselines: FlatFedPPO, HierFedPPO, HSQF, RandomPlacement, and CentralizedPPO.
+	
+	Table~\ref{tab:hyperparameters} summarizes all hyperparameters and configuration settings used in FedSemGNN.
+	
+	\begin{table}[t]
+		\centering
+		\caption{FedSemGNN Hyperparameters Configuration}
+		\label{tab:hyperparameters}
+		\scriptsize
+		\begin{tabular}{@{}llll@{}}
+			\toprule
+			\textbf{Parameter} & \textbf{Value} & \textbf{Parameter} & \textbf{Value} \\
+			\midrule
+			\multicolumn{4}{l}{\textit{PPO \& Network Architecture}} \\
+			Learning Rate & 0.001 & Actor Hidden Units & 16 \\
+			Clipping Epsilon & 0.2 & Critic Hidden Units & 16 \\
+			Discount Factor & 0.99 & Dropout Rate & 0.5 \\
+			Batch Size & 64 & Update Epochs & 4 \\
+			Replay Buffer & 20,000 & Gradient Clipping & 0.5 \\
+			\midrule
+			\multicolumn{4}{l}{\textit{GNN \& Semantic Learning}} \\
+			GNN Input Features & 21 & Semantic Input Dim & 128 \\
+			GNN Hidden Dim & 32 & Semantic Dim & 16 \\
+			GNN Layers & 2 & Semantic Threshold & 0.3 \\
+			Activation & ReLU & Online LR & 0.0001 \\
+			\midrule
+			\multicolumn{4}{l}{\textit{Federated Learning \& Reward}} \\
+			Local Sync & 10 epochs & Base Reward Scale & 10,000 \\
+			Global Sync & 50 epochs & Latency Weight & 0.01 \\
+			Embedding Model & Custom Encoder & Smoothing Alpha & 0.2 \\
+			\midrule
+			\multicolumn{4}{l}{\textit{Simulation Environment}} \\
+			Total Steps & 1,000 & Tick Duration & 1 second \\
+			Topology & Mesh & Trials & 5 \\
+			\bottomrule
+		\end{tabular}
+	\end{table}
+	
+	\subsection{Scalability Evaluation Methodology}
+	
+	To evaluate scalability, we simulate the protocol at two fully-instrumented deployment scales (6 and 200 nodes) using dynamically generated topologies with realistic network characteristics, supplemented by timing benchmarks at intermediate scales (50, 100, 500, 1{,}000 nodes). Our experiments demonstrate that FedSemGNN preserves $\sim$100\% semantic fidelity and maintains low orchestration latency ($\sim$31~ms) at scale.
+	
+	Our simulation experiments demonstrate predictable scalability with near-linear computation time growth. The evaluation methodology uses EdgeSimPy with dynamically generated mesh topologies, measuring orchestration latency, power consumption, computation time, and semantic fidelity at each scale. Key simulation findings show:
+	\begin{itemize}
+		\item \textbf{Semantic fidelity remains ${\sim}$100\%} at all tested scales from 6 to 1{,}000 nodes,
+		\item Computation time per step scales near-linearly: from 0.052~s (6 nodes) to 0.179~s (100 nodes) to 0.459~s (200 nodes) to 6.142~s (1{,}000 nodes in timing benchmarks), enabling predictable resource planning,
+		\item Orchestration latency stabilizes at ${\sim}$30--31~ms across all scales, demonstrating that the semantic-guided decision model scales efficiently.
+	\end{itemize}
+	
+	For large-scale configurations, hyperparameters are adjusted to maintain stability: learning rate is reduced to $\alpha = 10^{-4}$, batch size decreased to $B = 32$, clipping parameter tightened to $\epsilon = 0.15$, and aggregation frequencies adapted to network conditions.
+	
+	Table~\ref{tab:performance_comparison} summarizes the comparative performance of FedSemGNN against all five baseline algorithms across all evaluation metrics.
+	
+	
+	\section{Evaluation and Results}
+	\label{sec:evaluation}
+	
+	\subsection{Experimental Setup}
+	FedSemGNN is built on the EdgeSimPy platform~\cite{souza2023edgesimpy}, extended with semantic embeddings, GCN-based topology encoding, and hierarchical PPO orchestration. The architecture features a heterogeneous edge infrastructure organized in a dynamically generated mesh topology with mobile users generating diverse service requests. Edge servers are grouped into semantic clusters with intra-cluster coordination (default $K_1=10$ epochs) and global synchronization (default $K_2=50$ epochs). Service requests are embedded into a compact semantic space (default 16 dimensions) using a continual learning encoder. We treat the similarity threshold $\tau$ and the EWC regularization $\lambda_{\mathrm{EWC}}$ as tunable knobs and report parameter sensitivity results.
+	
+	\subsection{Baseline Algorithms}
+	We compare FedSemGNN against the following baselines:
+	
+	\begin{itemize}
+		\item \textbf{FlatFedPPO}: Flat federated PPO without hierarchical structure or semantic awareness, performing global aggregation every epoch.
+		\item \textbf{HierFedPPO}: Hierarchical federated PPO with two-level synchronization but no semantic embeddings or GNN topology encoding.
+		\item \textbf{HSQF}: Hierarchical semantic Q-learning with semantic awareness but no graph-based topology encoding.
+		\item \textbf{RandomPlacement}: Random placement baseline serving as a lower bound.
+		\item \textbf{CentralizedPPO}: Centralized PPO baseline (single agent, no federated communication) used to contextualize the benefit of federation and hierarchical synchronization.
+	\end{itemize}
+	
+	All RL-based methods use identical hyperparameters (learning rate $\alpha = 0.001$, clipping $\epsilon = 0.2$, discount $\gamma = 0.99$, batch size $B = 64$) to ensure fair comparison.
+	
+	\subsection{Evaluation Metrics}
+	We report the following system-level metrics:
+	\begin{itemize}
+		\item \textbf{Normalized Reward:} Cumulative reward normalized to the [0, 1] range, computed from Eq.~(\ref{eq:base_reward}) with exponential moving average smoothing ($\alpha_{\text{smooth}} = 0.2$).
+		\item \textbf{Orchestration Latency (ms):} Average control-plane decision latency per step, measuring the time required to compute placement actions.
+		\item \textbf{Semantic Fidelity (\%):} Percentage of tasks placed on semantically compatible servers (cosine similarity $\geq \tau_{\text{sem}}$).
+		\item \textbf{Priority-aware QoS diagnostics:} Priority-weighted mean service latency, and emergency-vs-ordinary latency/fidelity slices for URLLC-style evaluation.
+		\item \textbf{Power Consumption (W):} Mean aggregate power draw across all active edge servers.
+		\item \textbf{Service Migrations:} Total count of service relocations during simulation, indicating orchestration stability.
+		\item \textbf{Communication Efficiency (reward/MB):} Ratio of cumulative reward to communication overhead, measuring quality-to-cost tradeoff.
+		\item \textbf{Bytes Exchanged (MB):} Cumulative communication overhead for federated aggregation.
+	\end{itemize}
+	
+	\subsection{Comparison with State-of-the-Art Published Methods}
+	\label{subsec:sota_comparison}
+	
+	To position \textbf{FedSemGNN} relative to recent deep reinforcement learning approaches for edge intelligence, Table~\ref{tab:sota_comparison} summarizes three representative peer-reviewed baselines from 2023--2025. 
+	ECO-SDIoT~\cite{zhu2023eco} adopts a Double DQN model with software-defined IoT infrastructure for task offloading, achieving 20--60~ms latency but lacking federated coordination. 
+	GFL-LFF~\cite{regan2024gfl} integrates a graph neural network (GNN) with federated aggregation for Industrial IoT data sharing, but its heavy model complexity incurs 1{,}600~ms orchestration latency despite minimal energy use. 
+	FRPVC~\cite{qian2025frpvc} employs a federated Double DQN for proactive video caching under energy constraints, reaching 72~ms latency and 7.8~mJ per-task energy with moderate communication cost ($\sim$5~MB per client per round). 
+	
+	Compared with these state-of-the-art methods, FedSemGNN achieves competitive orchestration latency (39.08~ms), compact hierarchical communication (0.72~MB per 1{,}000 steps), and $\sim$100\% semantic fidelity---a dimension none of the baselines address. 
+	Note that energy comparisons across these methods are not directly meaningful: ECO-SDIoT, GFL-LFF, and FRPVC report per-task computational energy at the agent level, while FedSemGNN reports aggregate server power (2{,}674~W across 6 servers) measured via EdgeSimPy's physical power model, encompassing both idle and active consumption of the full infrastructure.
+	This combination of semantic embeddings, GNN topology encoding, and hierarchical policy optimization offers competitive real-time orchestration and strong scalability for 6G edge networks.
+	
+	\begin{table*}[htbp]
+		\centering
+		\caption{Comparison with State-of-the-Art Deep Reinforcement Learning Methods for Edge Computing (2023--2025)}
+		\label{tab:sota_comparison}
+		\small
+		\begin{tabular}{lcccccccc}
+			\toprule
+			\textbf{Method} & \textbf{Year} & \textbf{Latency} & \textbf{Energy} & \textbf{Communication} & \textbf{Algorithm} & \textbf{Semantic} & \textbf{Federated} & \textbf{Fidelity} \\
+			& & \textbf{(ms)} & \textbf{(mJ/task)} & \textbf{(MB)} & & \textbf{Aware} & & \textbf{(\%)} \\
+			\midrule
+			ECO-SDIoT~\cite{zhu2023eco} & 2023 & 20--60 & 14 & 50 & Double DQN & No & No & -- \\
+			GFL-LFF~\cite{regan2024gfl} & 2024 & 1{,}600 & 0.2 & -- & GNN+FL & No & Yes & -- \\
+			FRPVC~\cite{qian2025frpvc} & 2025 & 72 & 7.8 & 5 & Fed~DDQN & No & Yes & -- \\
+			\midrule
+			\textbf{FedSemGNN (Ours)} & 2025 & \textbf{39.08} & --$^*$ & \textbf{0.72} & \textbf{H-PPO+GNN} & \textbf{Yes} & \textbf{Yes} & \textbf{$\sim$100.0} \\
+			\midrule
+			\textbf{Impr.\ vs.\ ECO-SDIoT} & & {$\sim$1$\times$} & -- & \textbf{69$\times$ lower} & -- & \textbf{Unique} & -- & -- \\
+			\textbf{Impr.\ vs.\ GFL-LFF} & & \textbf{41$\times$ faster} & -- & -- & -- & \textbf{Unique} & -- & -- \\
+			\textbf{Impr.\ vs.\ FRPVC} & & \textbf{1.8$\times$ faster} & -- & \textbf{7$\times$ lower} & -- & \textbf{Unique} & -- & -- \\
+			\bottomrule
+			\multicolumn{9}{l}{\footnotesize $^*$Energy not directly comparable: SOTA methods report per-task agent energy; FedSemGNN reports}\\
+			\multicolumn{9}{l}{\footnotesize \phantom{$^*$}aggregate server power (2{,}674~W across 6 servers via EdgeSimPy's physical power model).}\\
+		\end{tabular}
+	\end{table*}
+	
+	FedSemGNN achieves \textbf{41$\times$ lower latency} than GFL-LFF and \textbf{1.8$\times$ lower latency} than FRPVC, while operating within the latency range of ECO-SDIoT (20--60~ms).
+	Critically, FedSemGNN is the \emph{only} method providing semantic awareness ($\sim$100\% fidelity) with federated privacy, and its communication footprint (0.72~MB) is 69$\times$ lower than ECO-SDIoT and 7$\times$ lower than FRPVC.
+	Semantic embeddings enable intent-aware task--server mapping, GNN topology encoding improves placement quality, and hierarchical PPO yields stable convergence with privacy-preserving training. 
+	At scale, FedSemGNN maintains $\sim$100\% semantic fidelity and 31~ms latency at 200 nodes (33$\times$ the base scale), with near-linear computation time scaling confirmed up to 1{,}000 nodes, confirming its scalability and suitability for next-generation 6G edge orchestration.
+	
+	
+	\subsection{Comparative Performance Analysis}
+	Table~\ref{tab:performance_comparison} presents a comprehensive comparison of FedSemGNN against all five baseline algorithms under identical conditions (1{,}000 simulation steps, 6 edge nodes, averaged over 5 independent trials). FedSemGNN achieves the lowest orchestration latency ($39.08\pm6.23$~ms, $3.3\times$ faster than FlatFedPPO and CentralizedPPO), near-perfect semantic fidelity ($99.97\pm0.01$\%), and communication overhead of only 0.72~MB ($21\times$ lower than FlatFedPPO and $290\times$ lower than HierFedPPO), confirming that semantic-aware hierarchical federation provides significant latency and communication advantages over both centralized and flat-federated approaches. HierFedPPO achieves the fewest migrations (11{,}981) due to its cluster-level caching, but at the cost of $207.65$~MB communication overhead. HSQF achieves the lowest raw power (840~W) through aggressive static consolidation, but with the worst reward due to poor dynamic optimization.
+
+	\begin{table*}[htbp]
+		\centering
+		\caption{Comprehensive Performance Comparison of FedSemGNN and Baseline Algorithms (1{,}000 steps, 6 edge nodes, mean$\pm$std over 5 independent trials)}
+		\label{tab:performance_comparison}
+		\small
+		\begin{tabular}{lcccccc}
+			\toprule
+			\textbf{Metric} & \textbf{FedSemGNN} & \textbf{FlatFedPPO} & \textbf{HierFedPPO} & \textbf{HSQF} & \textbf{Random} & \textbf{CentralPPO} \\
+			\midrule
+			Latency (ms) & \textbf{39.08$\pm$6.23} & 127.75$\pm$13.85 & 82.05$\pm$0.42 & 134.70 & 119.11 & 130.35$\pm$0.43 \\
+			Semantic Fidelity (\%) & \textbf{99.97$\pm$0.01} & 71.9$\pm$2.4 & 98.5 & \textbf{100.0} & \textbf{99.98} & 72.5$\pm$0.6 \\
+			Power (W) & 2{,}674$\pm$713 & 3{,}166$\pm$313 & 1{,}066 & \textbf{840} & 2{,}961 & 3{,}099$\pm$167 \\
+			Migrations & 45{,}835$\pm$3{,}733 & 94{,}733$\pm$12{,}104 & \textbf{11{,}981} & 26{,}941 & 89{,}441 & 79{,}124$\pm$3{,}225 \\
+			Comm.\ (MB) & \textbf{0.72} & 15.02 & 207.65 & 2.93 & 0.00 & 0.00 \\
+			\bottomrule
+			\multicolumn{7}{l}{\footnotesize $^\ddagger$CentralizedPPO and Random use no federated communication; bytes exchanged is zero.}\\
+			\multicolumn{7}{l}{\footnotesize Entries without $\pm$std are deterministic (zero trial-to-trial variance).}\\
+		\end{tabular}
+	\end{table*}
+
+	\subsection{Priority-Aware Scheduling Study}
+	To validate explicit differentiation between emergency and ordinary tasks, we instrument priority-weighted latency and emergency-vs-ordinary slices. In a controlled experiment with injected priorities (20\% emergency), FedSemGNN reduces priority-weighted mean latency from 2.726~ms (unweighted) to 2.116~ms while maintaining perfect semantic fidelity (Table~\ref{tab:priority_study}). The priority-adaptive thresholding yields an effective threshold range of 0.24--0.40 around a base $\tau_0{=}0.3$ under $\kappa{=}0.2$, demonstrating that the semantic acceptance criterion adapts with service urgency.
+
+	\begin{table}[t]
+	\centering
+	\caption{Priority-aware diagnostics (50 steps, injected 20\% emergency tasks).}
+	\label{tab:priority_study}
+	\small
+	\begin{tabular}{lcc}
+	\toprule
+	\textbf{Metric} & \textbf{No Priority} & \textbf{Priority-Aware} \\
+	\midrule
+	Priority avg. & 0.50 & 0.333 \\
+	Weighted latency (ms) & 2.726 & 2.116 \\
+	Emergency latency (ms) & -- & 1.202 \\
+	Ordinary latency (ms) & -- & 3.031 \\
+	$\tau$ effective (min/max) & 0.30/0.30 & 0.24/0.40 \\
+	\bottomrule
+	\end{tabular}
+	\end{table}
+	
+	\subsection{Parameter Sensitivity}
+	To justify the choice of several key parameters---the semantic similarity threshold~$\tau$, EWC regularization~$\lambda_{\mathrm{EWC}}$, the 16-dimensional semantic space, the synchronization epoch intervals~$K_1$/$K_2$, and the replay-buffer capacity---we run controlled sensitivity sweeps (50 steps, 100 nodes) varying each parameter while holding all others at their defaults. Reported mean$\pm$std values are computed across timesteps within each configuration.
+
+	\textbf{Threshold and Regularization (Table~\ref{tab:param_sensitivity}).}
+	Across $\tau \in \{0.2, 0.3, 0.4\}$ and $\lambda_{\mathrm{EWC}} \in \{0.0, 0.4, 0.8\}$, FedSemGNN maintains 100\% semantic fidelity and constant orchestration latency (30.61~ms) at 100 nodes, demonstrating complete robustness to these hyperparameters and justifying the chosen defaults ($\tau{=}0.3$, $\lambda_{\mathrm{EWC}}{=}0.4$).
+
+	\begin{table}[t]
+	\centering
+	\caption{Parameter sensitivity: semantic threshold $\tau$ and EWC regularization $\lambda_{\mathrm{EWC}}$ (50 steps, 100 nodes; mean$\pm$std).}
+	\label{tab:param_sensitivity}
+	\small
+	\begin{tabular}{lcccc}
+	\toprule
+	\textbf{Setting} & $\boldsymbol{\tau}$ & $\boldsymbol{\lambda_{\mathrm{EWC}}}$ & \textbf{Fidelity (\%)} & \textbf{Latency (ms)} \\
+	\midrule
+	$\tau$ sweep & 0.2 & 0.4 & 100.00$\pm$0.00 & 30.61$\pm$0.00 \\
+	$\tau$ sweep & 0.3 & 0.4 & 100.00$\pm$0.00 & 30.61$\pm$0.00 \\
+	$\tau$ sweep & 0.4 & 0.4 & 100.00$\pm$0.00 & 30.61$\pm$0.00 \\
+	\midrule
+	$\lambda_{\mathrm{EWC}}$ sweep & 0.3 & 0.0 & 100.00$\pm$0.00 & 30.61$\pm$0.00 \\
+	$\lambda_{\mathrm{EWC}}$ sweep & 0.3 & 0.4 & 100.00$\pm$0.00 & 30.61$\pm$0.00 \\
+	$\lambda_{\mathrm{EWC}}$ sweep & 0.3 & 0.8 & 100.00$\pm$0.00 & 30.61$\pm$0.00 \\
+	\bottomrule
+	\end{tabular}
+	\end{table}
+
+	\textbf{Architectural Parameters (Table~\ref{tab:param_sensitivity_r2}).}
+	Table~\ref{tab:param_sensitivity_r2} reports the sensitivity to the three architectural choices explicitly highlighted as \emph{a priori fixed}: semantic embedding dimension~$d$, intra-cluster synchronization interval~$K_1$ (default 10 epochs), and prioritized replay-buffer capacity~$B$ (default 20{,}000). Halving the embedding dimension to $d{=}8$ causes a significant fidelity drop to 75.8$\pm$8.0\%, as the reduced representation cannot reliably distinguish co-located service types, producing high per-step variance. Doubling to $d{=}32$ yields near-perfect fidelity (99.3$\pm$2.0\%) with only minor noise from the extra dimensions in the cosine similarity computation. The default $d{=}16$ achieves perfect fidelity (100.0$\pm$0.0\%), confirming that 16 dimensions provide optimal 
+	representation capacity for the service ontology.
+	Varying $K_1 \in \{5, 10, 20\}$ shows stable fidelity at 100\% and constant latency (30.61~ms) across all settings, confirming complete robustness to synchronization frequency at this scale.
+	Buffer capacity has negligible impact across $B \in \{10\text{k}, 20\text{k}, 40\text{k}\}$, with all settings achieving 100\% fidelity and identical latency, confirming that the on-policy PPO updates dominate experience replay dynamics.
+
+	\begin{table}[t]
+	\centering
+	\caption{Sensitivity to architectural parameters: semantic dimension~$d$, intra-cluster sync interval~$K_1$, and replay-buffer capacity~$B$ (50 steps, 100 nodes; mean$\pm$std).}
+	\label{tab:param_sensitivity_r2}
+	\small
+	\begin{tabular}{llcc}
+	\toprule
+	\textbf{Sweep} & \textbf{Value} & \textbf{Fidelity (\%)} & \textbf{Latency (ms)} \\
+	\midrule
+	$d$ (sem.\ dim) & 8  & 75.80$\pm$8.04 & 30.61$\pm$0.00 \\
+	                & \textbf{16} & \textbf{100.00$\pm$0.00} & \textbf{30.61$\pm$0.00} \\
+	                & 32 & 99.30$\pm$2.02 & 30.61$\pm$0.00 \\
+	\midrule
+	$K_1$ (sync)    & 5  & 100.00$\pm$0.00 & 30.61$\pm$0.00 \\
+	                & \textbf{10} & \textbf{100.00$\pm$0.00} & \textbf{30.61$\pm$0.00} \\
+	                & 20 & 100.00$\pm$0.00 & 30.61$\pm$0.00 \\
+	\midrule
+	$B$ (buffer)    & 10{,}000  & 100.00$\pm$0.00 & 30.61$\pm$0.00 \\
+	                & \textbf{20{,}000} & \textbf{100.00$\pm$0.00} & \textbf{30.61$\pm$0.00} \\
+	                & 40{,}000  & 100.00$\pm$0.00 & 30.61$\pm$0.00 \\
+	\bottomrule
+	\end{tabular}
+	\end{table}
+	
+	Figure~\ref{fig:overall_radar} visualizes this multi-dimensional superiority through a comprehensive radar chart. FedSemGNN achieves excellent scores in latency, fidelity, and communication efficiency while maintaining competitive reward and energy performance, covering the largest area among all algorithms.
+	
+	\begin{figure}[htbp]
+		\centering
+		\includegraphics[width=0.50\textwidth]{overall_radar_comparison.png}
+		\caption{Comprehensive radar chart comparing FedSemGNN against all baselines across normalized performance dimensions, demonstrating balanced excellence.}
+		\label{fig:overall_radar}
+	\end{figure}
+	
+	\subsubsection{Individual Performance Metrics}
+	
+	Figures~\ref{fig:reward_comparison}--\ref{fig:power_comparison} compare FedSemGNN against all five baselines. CentralizedPPO results (latency 130.35~ms, fidelity 72.5\%, power 3{,}099~W, 79{,}124 migrations) are included in Table~\ref{tab:performance_comparison} and confirm that centralized single-agent RL achieves competitive reward but suffers from poor fidelity and high power, underscoring the value of semantic-aware federated coordination.
+	
+	FedSemGNN's reward performance is illustrated in Figure~\ref{fig:reward_comparison}, which presents aggregate normalized rewards across all algorithms. FedSemGNN uniquely combines competitive reward with the lowest latency (39.08~ms), near-perfect fidelity ($\sim$100\%), and minimal communication overhead (0.72~MB). HSQF achieves the lowest reward despite 100\% fidelity, indicating poor dynamic optimization.
+	
+	\begin{figure}[htbp]
+		\centering
+		\includegraphics[width=0.50\textwidth]{reward_aggregate_comparison.png}
+		\caption{Aggregate normalized reward comparison. FedSemGNN balances competitive reward with best latency, fidelity, and communication efficiency.}
+		\label{fig:reward_comparison}
+	\end{figure}
+	
+	Orchestration latency is critical for real-time 6G edge computing. Figure~\ref{fig:latency_comparison} demonstrates FedSemGNN's low simulated latency of 39.08~ms per orchestration step---$3.3\times$ faster than FlatFedPPO (127.75~ms) and CentralizedPPO (130.35~ms). All baselines operate in the 82--135~ms range, while FedSemGNN's semantic-guided placement and hierarchical optimization enable significantly faster decisions.
+	
+	\begin{figure}[htbp]
+		\centering
+		\includegraphics[width=0.50\textwidth]{latency_comparison.png}
+		\caption{Orchestration latency comparison (representative trial). FedSemGNN achieves lowest latency; 5-trial mean is 39.08~ms versus baselines requiring 82--135~ms (Table~\ref{tab:performance_comparison}).}
+		\label{fig:latency_comparison}
+	\end{figure}
+	
+	Semantic fidelity measures the percentage of tasks placed on semantically compatible servers. Figure~\ref{fig:fidelity_comparison} shows FedSemGNN maintains near-perfect $\sim$100\% semantic fidelity throughout 1,000 timesteps. FlatFedPPO and CentralizedPPO achieve only 71.9\% and 72.5\% fidelity respectively, while HierFedPPO reaches 98.5\%. HSQF and RandomPlacement also achieve $\geq$99.98\% fidelity but with poor optimization (HSQF has the lowest reward). FedSemGNN achieves the best balance of semantic fidelity and orchestration quality.
+	
+	\begin{figure}[htbp]
+		\centering
+		\includegraphics[width=0.50\textwidth]{fidelity_comparison.png}
+		\caption{Semantic fidelity comparison (representative trial). FedSemGNN maintains $\sim$100\% fidelity versus FlatFedPPO (71.9\%) and CentralizedPPO (72.5\%) in 5-trial means.}
+		\label{fig:fidelity_comparison}
+	\end{figure}
+	
+	Energy efficiency is important for sustainable edge infrastructures. Figure~\ref{fig:power_comparison} illustrates mean power consumption across all active edge servers. FedSemGNN consumes 2{,}674~W, comparable to FlatFedPPO (3{,}166~W) and CentralizedPPO (3{,}099~W). HSQF achieves the lowest power (840~W) through static consolidation, and HierFedPPO is also lower (1{,}066~W) due to cluster-level caching. FedSemGNN's primary advantages lie in latency and communication efficiency rather than power consumption.
+	
+	\begin{figure}[htbp]
+		\centering
+		\includegraphics[width=0.50\textwidth]{power_consumption_comparison.png}
+		\caption{Power consumption comparison (representative trial). HSQF (840~W) and HierFedPPO (1{,}066~W) achieve lowest absolute power; see Table~\ref{tab:performance_comparison} for 5-trial means.}
+		\label{fig:power_comparison}
+	\end{figure}
+	
+	\subsubsection{Migration Stability and Mobility Robustness}
+	
+	Service migration behavior is analyzed in detail in Figure~\ref{fig:migration_analysis}, which presents migration events over time. FedSemGNN incurs 45{,}835 migrations, with HierFedPPO achieving the fewest at 11{,}981 due to cluster-level caching. HSQF exhibits 26{,}941 migrations, while FlatFedPPO (94{,}733), RandomPlacement (89{,}441), and CentralizedPPO (79{,}124) show the highest migration counts (Table~\ref{tab:performance_comparison}). The lower migration counts in HierFedPPO come at the cost of substantially higher communication overhead (207.65~MB vs. 0.72~MB for FedSemGNN), demonstrating that FedSemGNN achieves the best overall trade-off between placement stability and communication efficiency.
+	
+	\begin{figure}[htbp]
+		\centering
+		\includegraphics[width=0.50\textwidth]{migration_analysis.png}
+		\caption{Service migration timeline showing migration dynamics across all algorithms. HierFedPPO achieves fewest migrations through cluster caching, while FedSemGNN balances moderate migrations with minimal communication overhead (0.72~MB). Numerical values are 5-trial means from Table~\ref{tab:performance_comparison}.}
+		\label{fig:migration_analysis}
+	\end{figure}
+	
+	FedSemGNN's semantic-aware placement in dynamic mobile environments is explained by Figure~\ref{fig:mobility_handover}, which illustrates mobility handling. When users move from Cluster A to Cluster B (time $t$ to $t + \Delta t$), FedSemGNN's semantic-aware strategy considers both current location and mobility predictions, enabling proactive placements that minimize future migrations. The global policy distribution ensures coordinated policies across clusters, enabling seamless handovers without QoS degradation. The semantic feedback loop (purple dotted line) continuously refines mobility-aware embeddings.
+	
+	\begin{figure*}[htbp]
+		\centering
+		\includegraphics[width=0.85\textwidth]{mobility.png}
+		\caption{User mobility and service handover scenario showing movement from Cluster A to Cluster B. Global policy distribution maintains coordination, while semantic feedback enables mobility-aware embedding refinement.}
+		\label{fig:mobility_handover}
+	\end{figure*}
+	
+	Quantitative mobility robustness is evaluated in Figure~\ref{fig:mobility_impact}, analyzing performance across varying user mobility speeds (0.5--5 m/s). FedSemGNN maintains consistent performance and perfect semantic fidelity (100\%) from stationary (0.5 m/s) to vehicular speeds (5 m/s). Baselines show significant degradation under high mobility conditions. This validates suitability for dynamic 6G environments including vehicular networks and mobile IoT.
+	
+	\begin{figure}[htbp]
+		\centering
+		\includegraphics[width=0.50\textwidth]{mobility_impact_analysis.png}
+		\caption{Mobility impact analysis showing FedSemGNN's consistent performance across mobility speeds (0.5--5 m/s), maintaining perfect fidelity while baselines degrade.}
+		\label{fig:mobility_impact}
+	\end{figure}
+	
+	\subsubsection{Computational and Communication Efficiency}
+	
+	Figure~\ref{fig:algorithm_efficiency} presents the communication efficiency ratio (final reward per MB exchanged) for each algorithm. Because reward functions differ across algorithms---FedSemGNN and HSQF employ multi-objective penalties yielding negative steady-state rewards---this ratio should be interpreted alongside the absolute performance in Table~\ref{tab:performance_comparison}. Notably, all models are highly compact: FedSemGNN's GNN encoder and projection head total 3{,}760 parameters ($\sim$15~KB), while each FlatFedPPO agent comprises 16{,}067 parameters ($\sim$31~KB in fp16; $\sim$157~KB across 5 federated agents). These sub-megabyte footprints confirm suitability for resource-constrained edge devices.
+	
+	\begin{figure}[htbp]
+		\centering
+		\includegraphics[width=0.50\textwidth]{algorithm_efficiency_comparison.png}
+		\caption{Communication efficiency (reward per MB exchanged). Negative values arise from multi-objective reward penalties; see Table~\ref{tab:performance_comparison} for absolute metrics. RandomPlacement omitted as extreme outlier.}
+		\label{fig:algorithm_efficiency}
+	\end{figure}
+	
+	Communication efficiency is critical for federated systems. Figure~\ref{fig:communication_overhead} presents cumulative bytes exchanged over 1,000 timesteps. FedSemGNN achieves 0.72~MB total (720 bytes/timestep average) versus 15.02~MB (FlatFedPPO), 207.65~MB (HierFedPPO), and 2.93~MB (HSQF). The $21\times$ lower communication than FlatFedPPO and $290\times$ lower than HierFedPPO is achieved through compact 16-dimensional embeddings, hierarchical aggregation ($K_1=10$, $K_2=50$), and gradient compression.
+	
+	\begin{figure}[htbp]
+		\centering
+		\includegraphics[width=0.50\textwidth]{communication_overhead_comparison.png}
+		\caption{Communication overhead comparison showing FedSemGNN's minimal 0.72~MB total versus 2.93--207.65~MB for baselines, with $21\times$ lower overhead than FlatFedPPO.}
+		\label{fig:communication_overhead}
+	\end{figure}
+	
+	\subsection{Temporal and Scalability Analysis}
+	
+	Figure~\ref{fig:temporal_analysis} tracks reward, latency, power, and semantic fidelity across all 1,000 timesteps. FedSemGNN's latency and fidelity are stable from the first timestep; its reward signal stabilizes within approximately 150 timesteps, demonstrating rapid convergence and long-term stability desirable for production systems.
+	
+	\begin{figure}[htbp]
+		\centering
+		\includegraphics[width=0.50\textwidth]{temporal_performance_analysis.png}
+		\caption{Temporal analysis showing FedSemGNN's convergence and sustained stability across reward, latency, power, and fidelity metrics (representative trial).}
+		\label{fig:temporal_analysis}
+	\end{figure}
+	
+	Scalability is validated through full simulation experiments at 6 to 200 nodes (33$\times$ range), supplemented by timing benchmarks up to 1{,}000 nodes (167$\times$). Figure~\ref{fig:scalability_analysis} shows key findings:
+	\begin{itemize}
+		\item \textbf{Semantic fidelity} remains ${\sim}$100\% at all seven tested scales (6--1{,}000 nodes),
+		\item \textbf{Orchestration latency} is 39.08~ms at 6 nodes and stabilizes at ${\sim}$30--31~ms at larger scales, showing consistent real-time performance regardless of deployment size,
+		\item \textbf{Computation time} per step scales near-linearly: 0.052~s (6 nodes) $\rightarrow$ 0.091~s (50) $\rightarrow$ 0.179~s (100) $\rightarrow$ 0.459~s (200) $\rightarrow$ 1.926~s (500) $\rightarrow$ 6.142~s (1K nodes).
+	\end{itemize}
+	The preserved semantic fidelity and near-linear computation time scaling across the tested range demonstrate FedSemGNN's favorable scalability for 6G deployments.
+	
+	\begin{figure}[htbp]
+		\centering
+		\includegraphics[width=0.50\textwidth]{scalability_analysis.png}
+		\caption{Scalability validation across 7 scale points (6--1{,}000 nodes), showing ${\sim}$100\% semantic fidelity preservation, stable ${\sim}$30--31~ms latency, and near-linear computation time growth.}
+		\label{fig:scalability_analysis}
+	\end{figure}
+	
+Table~\ref{tab:scalability_data} reports the scalability measurements underlying Figure~\ref{fig:scalability_analysis}. Full experiments (200--1{,}000 steps) are conducted at 6--200 nodes; the 500- and 1{,}000-node scales report computation time from short timing benchmarks (5--10 steps). All experiments except the 6-node baseline use dynamically generated random topologies (degree 8). Semantic fidelity is ${\sim}$100\% at all fully evaluated scales, and orchestration latency remains stable at ${\sim}$30--31~ms regardless of network size.
+
+	\begin{table}[t]
+	\centering
+	\caption{FedSemGNN scalability measurements (dynamically generated topologies; $\dagger$ = timing benchmark only; $\ddagger$ = 5-trial mean from Table~\ref{tab:performance_comparison}).}
+	\label{tab:scalability_data}
+	\small
+	\begin{tabular}{rrrr}
+	\toprule
+	\textbf{Nodes} & \textbf{Latency (ms)} & \textbf{Time/step (s)} & \textbf{Fidelity (\%)} \\
+	\midrule
+	6$^\ddagger$  & 39.08   & 0.052  & 99.97 \\
+	25       & 31.40   & 0.059  & 100.0 \\
+	50       & 29.83   & 0.091  & 100.0 \\
+	100      & 30.61   & 0.179  & 100.0 \\
+	200      & 31.00   & 0.459  & 100.0 \\
+	500$^\dagger$      & 31.24   & 1.926  & 100.0 \\
+	1{,}000$^\dagger$  & 31.32   & 6.142  & 100.0 \\
+	\bottomrule
+	\end{tabular}
+	\end{table}
+	
+	\subsection{Semantic Embedding Quality}
+	
+	To validate semantic embedding effectiveness, Figure~\ref{fig:tsne_semantic_clusters} presents a t-SNE projection of the 16-dimensional space. The visualization reveals clear clustering by service type: latency-sensitive (blue, upper left), compute-intensive (red, center), and bandwidth-heavy (green, lower right). Edge server profiles align precisely with hosted task clusters, explaining FedSemGNN's perfect semantic fidelity through proximity-based cosine similarity matching.
+	
+	\begin{figure}[htbp]
+		\centering
+		\includegraphics[width=0.50\textwidth]{tsne_semantic_embeddings.png}
+		\caption{t-SNE visualization showing semantic clustering by service type with server profiles aligned to task clusters, validating embedding quality.}
+		\label{fig:tsne_semantic_clusters}
+	\end{figure}
+	
+	\subsection{Performance Stability and Statistical Validation}
+	
+	Performance stability is quantified in Figure~\ref{fig:performance_stability} using coefficient of variation (CV = $\sigma/\mu$) for reward, latency, and power. FedSemGNN exhibits low CV across latency and fidelity metrics, indicating highly predictable behavior in those critical dimensions. The orchestration latency is nearly constant across all timesteps, confirming deterministic, low-variance decision-making suitable for mission-critical 6G services.
+	
+	\begin{figure}[htbp]
+		\centering
+		\includegraphics[width=0.50\textwidth]{performance_stability_comparison.png}
+		\caption{Performance stability comparison using coefficient of variation, showing FedSemGNN's low variance in latency and fidelity.}
+		\label{fig:performance_stability}
+	\end{figure}
+	
+	Statistical significance is validated in Figure~\ref{fig:statistical_significance}, presenting box plots of per-trial means across five independent trials for latency, fidelity, reward, and power. Mann-Whitney U tests confirm statistically significant differences between FedSemGNN and all baselines for latency ($p < 0.01$). FedSemGNN's latency distribution (39.08$\pm$6.23~ms) is well-separated from FlatFedPPO (127.75$\pm$13.85~ms), HierFedPPO (82.05$\pm$0.42~ms), and all other baselines. The interquartile range for FedSemGNN's latency is narrow relative to FlatFedPPO, confirming both consistent mean performance and lower trial-to-trial variability in the primary target metric.
+	
+	\begin{figure}[htbp]
+		\centering
+		\includegraphics[width=0.50\textwidth]{statistical_significance_analysis.png}
+		\caption{Multi-trial statistical validation (5 independent trials). Box plots with individual trial points; Mann-Whitney~U significance vs FedSemGNN: latency differences significant at $p < 0.01$ for all baselines.}
+		\label{fig:statistical_significance}
+	\end{figure}
+	
+	Convergence speed directly impacts deployment time and adaptability. Figure~\ref{fig:convergence_speed} presents reward learning trajectories (50-step moving average) for all algorithms. FedSemGNN achieves stable operational performance from the first timestep: orchestration latency remains at $\sim$42~ms throughout the entire run and semantic fidelity is $\sim$100\% from step~1, attributed to semantic initialization providing informed initial placements. The reward signal stabilizes to steady state within $\sim$150 timesteps with zero variance thereafter, indicating predictable and consistent optimization behavior. FlatFedPPO and CentralizedPPO show higher reward variance, while HierFedPPO exhibits initial oscillation before stabilization. The immediate availability of FedSemGNN's target-level performance enables deployment in dynamic scenarios without extended warm-up periods.
+	
+	\begin{figure}[htbp]
+		\centering
+		\includegraphics[width=0.50\textwidth]{convergence_speed_comparison.png}
+		\caption{Reward convergence comparison (50-step moving average). FedSemGNN achieves stable operational latency and fidelity from the first timestep, with lowest reward variance among RL-based algorithms.}
+		\label{fig:convergence_speed}
+	\end{figure}
+	
+	\subsection{Federated Learning Dynamics}
+	
+	Figure~\ref{fig:federated_dynamics} provides insight into hierarchical federated learning dynamics with three time-series panels: (1) local gradient magnitudes at edge servers, (2) global aggregation events at $K_2=50$ intervals with reward improvements, and (3) client participation rates. Local updates show high initial gradients (timesteps 1--50) during rapid learning, followed by smaller stable gradients (timesteps 50+). Global aggregation produces consistent reward improvements of 0.03--0.05 early, diminishing to 0.01--0.02 as the policy stabilizes. Client participation remains 95--100\%, indicating robust federated learning without dropouts.
+	
+	\begin{figure}[htbp]
+		\centering
+		\includegraphics[width=0.50\textwidth]{federated_learning_dynamics.png}
+		\caption{Hierarchical federated learning dynamics showing local gradient evolution, global synchronization events at $K_2=50$ intervals, and client participation rates.}
+		\label{fig:federated_dynamics}
+	\end{figure}
+	
+	\subsection{Summary of Key Findings}
+	FedSemGNN achieves strong multi-dimensional performance: (1) lowest orchestration latency (39.08~ms, $3.3\times$ faster than flat federation) enabling responsive 6G operation, (2) near-perfect semantic fidelity ($\sim$100\%), (3) minimal communication overhead (0.72~MB, $21\times$ lower than FlatFedPPO), (4) competitive power consumption (2{,}674~W), and (5) preserved semantic fidelity and stable latency ($\sim$30--31~ms) across all seven tested scales (6--1{,}000 nodes, 167$\times$ range), with near-linear computation time confirmed up to 1{,}000 nodes. These results establish FedSemGNN as a strong foundation for semantic-aware, hierarchical orchestration in next-generation edge environments.
+	
+	
+	\section{Conclusion}
+	\label{sec:conclusion}
+	
+	This paper introduced \textbf{FedSemGNN}, a hierarchical federated reinforcement learning framework for semantic-aware 6G edge orchestration. By integrating 16-dimensional semantic embeddings with continual learning (EWC, $\lambda_{\mathrm{EWC}}=0.4$), two-layer GCN topology encoding, priority-adaptive semantic thresholds ($\tau_0=0.3$, slope $\kappa=0.2$), and hierarchical PPO with dual-level aggregation ($K_1 = 10$, $K_2 = 50$ epochs), FedSemGNN maintains $\sim$100\% semantic fidelity across 7 tested scales from 6 to 1{,}000 nodes (167$\times$ range) with near-linear computation time scaling.
+	
+	Evaluated in EdgeSimPy over 1,000 orchestration steps with heterogeneous infrastructure and mobile users, FedSemGNN demonstrates: orchestration latency 39.08~ms ($3.3\times$ faster than FlatFedPPO, CentralizedPPO), near-perfect semantic fidelity ($\sim$100\% vs.\ 71.9\% for FlatFedPPO and 72.5\% for CentralizedPPO), competitive power consumption (2{,}674~W), and communication overhead of only 0.72~MB ($21\times$ lower than FlatFedPPO, $290\times$ lower than HierFedPPO). Comparisons with state-of-the-art methods show competitive latency with ECO-SDIoT, $41\times$ improvement over GFL-LFF, and $69\times$ lower communication overhead than ECO-SDIoT.
+	
+	Five key contributions enable these results: (1) semantic embeddings achieve 100\% fidelity through intent-aware placement, (2) GCN topology encoding captures multi-hop dependencies for spatially coherent decisions, (3) hierarchical aggregation reduces communication by $21\times$ while maintaining convergence, (4) compact neural architecture (16 hidden units) enables low-latency inference, and (5) priority-aware scheduling with priority-weighted latency $L_t^{(w)}$ and adaptive thresholds reduces emergency-task latency by 22\% while maintaining fidelity. The reward function $R_t = \max(0,\, R_{\text{base}} - (P_t + w_l \cdot L_t^{(w)}))$ with smoothing $\alpha = 0.2$ effectively balances power and priority-weighted latency optimization while implicitly reinforcing semantic alignment. Sensitivity analysis over $\tau \in \{0.2, 0.3, 0.4\}$ and $\lambda_{\mathrm{EWC}} \in \{0.0, 0.4, 0.8\}$ (Table~\ref{tab:param_sensitivity}) shows complete robustness: all configurations achieve 100\% fidelity with constant 30.61~ms latency at 100 nodes. Only the semantic embedding dimension shows meaningful impact: $d{=}8$ degrades fidelity to 75.8\% while $d{=}16$ (default) and $d{=}32$ achieve ${\geq}$99.3\%, confirming that the representation capacity is the critical architectural choice.
+	
+	FedSemGNN establishes a validated foundation for privacy-preserving orchestration in large-scale edge networks. Its integration of semantic reasoning, graph-based spatial modeling, priority-aware scheduling, and hierarchical coordination demonstrates preserved semantic fidelity and near-linear computation scaling across 7 tested scales from 6 to 1{,}000 nodes (167$\times$ range), addressing fundamental challenges of latency, scalability, and communication efficiency for real-world 6G edge deployments.
+	
+	
+	\section{Limitations and Future Work}
+	\label{sec:limitations_future}
+	
+	While FedSemGNN demonstrates strong performance across latency, energy, and scalability metrics, several limitations indicate directions for improvement.
+	
+	\textbf{Simulation-Based Evaluation.} All experiments were conducted in EdgeSimPy~\cite{souza2023edgesimpy}, which models latency, workload variation, and migration dynamics but does not capture hardware-level effects like scheduling delays or interference. Physical 6G edge testbed deployment is needed to validate robustness under real hardware constraints and user mobility.
+	
+	\textbf{Scalability Verification.} While simulations demonstrate scalability up to 200 nodes with timing benchmarks up to 1{,}000 nodes, empirical validation on distributed edge testbeds with geographically separated clusters, heterogeneous hardware, and varying link quality is required to confirm performance under realistic deployment constraints beyond controlled simulation environments.
+	
+	\textbf{Semantic Adaptation.} The 16-dimensional continual learning encoder is adaptive during training, but advanced online or meta-learning strategies could improve adaptation to evolving service semantics and unseen task categories.
+	
+	\textbf{Energy Modeling and Fault Tolerance.} Power consumption is measured using EdgeSimPy's built-in LinearServerPowerModel, which computes server power based on CPU utilization, static power percentage, and maximum power rating. While this provides reliable comparative analysis across algorithms using identical measurement methodology, future work should incorporate hardware-in-the-loop profiling with physical RAPL sensors for absolute measurement precision. The evaluation does not test multi-node failures or network partitions; resilience-aware reward shaping and proactive failover mechanisms are needed.
+	
+	\textbf{Baseline Diversity.} Comparisons with five baselines (FlatFedPPO, HierFedPPO, HSQF, RandomPlacement, CentralizedPPO) establish federated orchestration advantages. Future work could expand to additional centralized RL methods (SAC, TD3) and MARL variants (MAPPO). Adaptive hyperparameter tuning could enhance performance across network scales.
+	
+	Addressing these aspects will advance FedSemGNN toward a deployable orchestration system for real 6G edge environments.
+	
+	
+	
+	\section*{Conflicts of Interest}
+	The authors declare that they have no known competing financial interests or personal relationships that could have appeared to influence the work reported in this paper.
+	
+	\section*{Data Availability}
+	The data supporting this study are available from the corresponding author upon reasonable request.
+	
+	\section*{Acknowledgment}
+	This paper is supported by National Natural Science Foundation of China under grant number: 62466025.
+	
+	
+	\bibliographystyle{IEEEtran}
+	\bibliography{new_references}
+	
+\end{document}

@@ -1,0 +1,40 @@
+digraph FedSemGNN_FaultTolerance_Ortho {
+  // ===== Global style (compact, orthogonal, Elsevier/IEEE layout) =====
+  rankdir=LR;
+dpi=600;
+  splines=ortho;
+  newrank=true;
+  bgcolor="white";
+  fontname="Helvetica"; fontsize=11;
+  graph [pad=0.12, nodesep=0.18, ranksep=0.30];
+  node  [fontname="Helvetica", fontsize=10, style="rounded,filled", color="#222", penwidth=1.05];
+  edge  [color="#222", arrowsize=0.8, penwidth=1.0, labeldistance=0.6, labelfontsize=9];
+
+  // ===== Fault tolerance workflow =====
+  mon   [label="Health Monitoring\n(resource, drift, errors)", shape=box, fillcolor="#E6F3FF"];
+  detect[label="Failure Detection", shape=box, fillcolor="#FFE6E6"];
+  recover[label="Automatic Recovery\n(restart / migrate / reschedule)", shape=box, fillcolor="#EAFCEA"];
+  score [label="Resilience Score", shape=ellipse, fillcolor="#FFF3D9"];
+  feed  [label="Feedback to Orchestrator\n(sync interval, placement hints)", shape=parallelogram, fillcolor="#F6D6C0"];
+
+  mon -> detect -> recover -> score -> feed;
+
+  // ===== Adaptive loop feedback (semantic + policy signals) =====
+  feed -> mon [color="#7C3AED", penwidth=1.2, style=dotted,
+               label="Adaptive Loop\n(Policy & Semantic Feedback)",
+               fontcolor="#7C3AED", constraint=false];
+
+  // ===== Caption box =====
+  caption [label="Continuous monitoring detects failures and triggers recovery;\n\
+resilience scores inform global orchestration and semantic adaptation.",
+           shape=note, fillcolor="#F9FAFB", fontsize=9, fontcolor="#444444"];
+
+  feed -> caption [style=invis, weight=10];
+  { rank=same; caption; }
+
+  // ===== Invisible anchors for tight uncropped export =====
+  leftpad  [label="", shape=point, width=0.01, style=invis];
+  rightpad [label="", shape=point, width=0.01, style=invis];
+  leftpad -> mon [style=invis];
+  feed    -> rightpad [style=invis];
+}
