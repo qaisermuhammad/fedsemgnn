@@ -100,8 +100,7 @@ FedSemGNN/
 │   │   ├── extreme_scale_federated.py  # Extreme-scale federation logic
 │   │   ├── hardware_energy_modeling.py # Utilization-based power estimation
 │   │   ├── multi_cluster_fault_tolerance.py  # Fault injection/recovery
-│   │   ├── online_semantic_learning.py       # EWC continual learning
-│   │   └── physical_testbed_preparation.py   # Testbed deployment utilities
+│   │   └── online_semantic_learning.py       # EWC continual learning
 │   ├── utils/                       # Shared utilities
 │   │   ├── gcn_encoder.py          #   2-layer GCN with symmetric normalization
 │   │   ├── graph_utils.py          #   Topology graph construction
@@ -162,8 +161,7 @@ FedSemGNN/
 │   ├── topology_generator.py       #   Generate topologies (ring/random/smallworld)
 │   ├── generate_complete_1000_node_dataset.py  # 1K node dataset generator
 │   ├── validate_1000_nodes.py      #   Dataset validation
-│   ├── repair_dataset_attributes.py #  Fix dataset inconsistencies
-│   └── extract_pdf_text.py         #   PDF text extraction for baseline paper analysis
+│   └── repair_dataset_attributes.py #  Fix dataset inconsistencies
 │
 ├── workloads/                       # Simulation datasets
 │   ├── dataset.json                #   Base dataset (6 servers)
@@ -178,23 +176,18 @@ FedSemGNN/
 │   ├── multi_trial/                #   5-trial results (multi_trial_summary.csv)
 │   ├── scalability/                #   Scalability study (scalability_results.csv)
 │   ├── sensitivity/                #   Parameter sensitivity sweeps
-│   ├── _sens_rev1_t5/             #   Reviewer-requested tau sensitivity
-│   ├── _prio_off.csv              #   Priority ablation: priority disabled
-│   ├── _prio_hash20_slope02.csv   #   Priority ablation: hash-based priority
+│   ├── _prio_off.csv              #   Priority study: priority disabled
+│   ├── _prio_hash20_slope02.csv   #   Priority study: hash-based priority
 │   ├── <algo>_metrics.csv          #   Per-algorithm single-run metrics
 │   └── fair_optimized/             #   Fair optimization comparison results
 │
 ├── figures/                         # High-quality figures (PNG + PDF)
-│   ├── *.png                       #   21 primary figures
-│   └── pdf/                        #   PDF versions
-│
 ├── graphs/                          # Additional graph outputs
 │
 ├── visualizations/                  # Extended visualization outputs
 │   ├── analysis_plots/
 │   ├── generators/
-│   ├── metrics/
-│   └── paper_artifacts/
+│   └── metrics/
 │
 ├── logs/                            # EdgeSimPy msgpacks + run logs
 ├── reports/                         # Comparison and analysis reports
