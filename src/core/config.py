@@ -5,8 +5,8 @@ REWARD_SCALE = 1000.0  # divide per-step reward by this factor for display; set 
 # Simulation parameters
 SIMULATION_CONFIG = {
     "tick_duration":      1,               # seconds per step
-    "simulation_input": "workloads/sample_dataset3.json",  # Connected large-scale dataset
-    "max_nodes": 30000,                     # ACTUAL EdgeServers with connected topology
+    "simulation_input": "workloads/scale_1000_nodes_connected.json",  # Connected large-scale dataset
+    "max_nodes": 1000,                     # ACTUAL EdgeServers with connected topology
     "enable_extreme_scale": True           # enable extreme scale features for large dataset
 }
 

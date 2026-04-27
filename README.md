@@ -116,24 +116,6 @@ FedSemGNN/
 │   └── power_model/                 # 6G edge power models
 │       └── edge_6g_power.py        #   DVFS-based power estimation
 │
-
-├── fed/                             # Federated learning utilities
-│   ├── async_clock.py              #   Asynchronous synchronization clock
-│   └── param_thinning.py           #   Parameter compression for comm efficiency
-│
-├── semantics/                       # Semantic processing
-│   └── online_embed.py             #   Online embedding model updates
-│
-├── energy/                          # Energy modeling
-│   ├── model.py                    #   Analytical energy consumption model
-│   └── dvfs.py                     #   Dynamic voltage/frequency scaling simulation
-│
-├── reward/
-│   └── resilience.py               # Resilience-aware reward shaping
-│
-├── faults/
-│   └── injector.py                 # Fault injection for robustness testing
-│
 ├── experiments/                     # Core experiment execution scripts
 │   ├── run_all_algorithms.py       #   Run all 6 algorithms sequentially
 │   ├── run_multi_trial.py          #   Multi-trial experiments (5 seeds)
@@ -175,21 +157,18 @@ FedSemGNN/
 │   ├── <algo>_metrics.csv          #   Per-algorithm single-run metrics
 │   └── fair_optimized/             #   Fair optimization comparison results
 │
-├── figures/                         # High-quality figures (PNG + PDF)
-├── graphs/                          # Additional graph outputs
+├── graphs/                          # High-quality performance plots (PNG/PDF)
 │
-├── visualizations/                  # Extended visualization outputs
-│   ├── analysis_plots/
-│   ├── generators/
-│   └── metrics/
+├── visualizations/                  # Advanced plotting and diagramming scripts
+│   ├── analysis_plots/             #   Metric temporal progression plots
+│   └── generators/                 #   Architecture and comparative diagrams
 │
-├── logs/                            # EdgeSimPy msgpacks + run logs
-├── reports/                         # Comparison and analysis reports
+├── tools/                           # Data maintenance and repair utilities
+│   ├── topology_generator.py       #   Large-scale network generator
+│   └── repair_dataset_attributes.py #  JSON dataset sanitization
 │
-├── docs/                            # Project documentation
-│   └── README.md                   #   ← THIS FILE
-│
-└── generate_all_graphs.py           # Master graph generation script
+├── scripts/                         # Batch execution and profiling scripts
+└── tests/                           # Unit and integration test suite
 ```
 
 ---
