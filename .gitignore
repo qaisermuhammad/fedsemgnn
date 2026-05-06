@@ -71,8 +71,4 @@ paper/
 .gemini/
 
 # Specific to this project
-graphs/*.png
-graphs/*.pdf
-results/*.csv
-results/*.json
-logs/*.msgpack
+graphs/

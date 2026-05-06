@@ -175,36 +175,33 @@ FedSemGNN/
 
 ## Quick Start
 
+### 1. Environment Setup
 ```bash
-# 1. Install dependencies
-pip install -r requirements.txt
+# Activate the virtual environment (Windows)
+.venv\Scripts\activate
+```
 
-# 2. Run all 6 algorithms (default: 1,000 nodes, 1,000 steps)
-python main.py
+### 2. Execution Options
+Choose one of the following depending on your needs:
 
-# 3. Run a specific algorithm
-python main.py --algorithm FedSemGNN --steps 1000
+**A. Single Experiment (using `main.py`)**
+Ideal for testing specific algorithms or configurations.
+```bash
+# Run a specific algorithm with custom steps
+python main.py --algorithm FedSemGNN --steps 500
 
-# 4. Run with custom node count
-python main.py --override-num-nodes 1000 --steps 500
+# Run with generated topology (e.g., 1000 nodes)
+python main.py --override-num-nodes 1000 --use-generated-topology
+```
 
-# 5. Run with 6G edge power model
-python main.py --6g-edge-mode
+**B. Full Research Study (using `experiments/`)**
+Automated suite that runs all algorithms, scalability sweeps, and sensitivity analysis. **No separate `main.py` call needed.**
+```bash
+# Run the complete suite (Phases 1-5)
+python experiments/run_comprehensive.py
 
-# 6. Run with generated topology
-python main.py --algorithm FedSemGNN --use-generated-topology --topology-mode smallworld
-
-# 7. Generate all figures
-python generate_all_graphs.py
-
-# 8. Run multi-trial experiment (5 seeds)
-python experiments/run_multi_trial.py
-
-# 9. Run scalability study (6 to 1,000 nodes)
-python experiments/run_scalability.py
-
-# 10. Run parameter sensitivity analysis
-python experiments/run_parameter_sensitivity.py
+# Generate final figures from results
+python scripts/graphs/generate_all_graphs.py
 ```
 
 ### CLI Reference (`main.py`)
