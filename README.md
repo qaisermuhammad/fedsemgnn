@@ -1,4 +1,10 @@
-# FedSemGNN — Federated Semantic GNN for 6G Edge Intelligence
+**FedSemGNN: A scalable, semantic-aware federated RL framework for efficient 6G edge orchestration**  
+Published in Computer Networks  
+
+DOI: https://doi.org/10.1016/j.comnet.2026.112315
+
+Accepted manuscript: [Download PDF](./paper/FedSemGNN_Accepted_Manuscript.pdf)
+
 
 <div align="center">
 
